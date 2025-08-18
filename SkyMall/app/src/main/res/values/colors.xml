@@ -1,0 +1,8 @@
+<resources>
+    <color name="skymall_primary">#64B5F6</color>
+    <color name="skymall_primary_dark">#1E88E5</color>
+    <color name="skymall_on_primary">#FFFFFF</color>
+    <color name="skymall_surface">#F6FAFF</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>

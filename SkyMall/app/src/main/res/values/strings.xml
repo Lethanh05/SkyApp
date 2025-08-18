@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">SkyMall</string>
+    <string name="cd_messages">Tin nhắn</string>
+    <string name="cd_cart">Giỏ hàng</string>
+    <string name="cd_search_icon">Tìm kiếm</string>
+    <string name="search_hint">Tìm sản phẩm...</string>
+</resources>
