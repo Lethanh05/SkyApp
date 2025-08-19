@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.example.skymall.ui.HomeFragment;
+import com.example.skymall.ui.NotificationsFragment;
+import com.example.skymall.ui.ProfileFragment;
 import com.example.skymall.ui.StoreFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment(), true);
         }
@@ -32,12 +35,11 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(StoreFragment.newInstance(1), false);
                 return true;
             } else if (id == R.id.nav_notifications) {
-                // TODO: loadFragment(new NotificationsFragment(), false);
-                Toast.makeText(this, "Mở Thông báo", Toast.LENGTH_SHORT).show();
+                loadFragment(new NotificationsFragment(), false);
                 return true;
             } else if (id == R.id.nav_profile) {
-                // TODO: loadFragment(new ProfileFragment(), false);
-                Toast.makeText(this, "Mở trang cá nhân", Toast.LENGTH_SHORT).show();
+
+                loadFragment(new ProfileFragment(), false);
                 return true;
             }
             return false;
@@ -67,4 +69,5 @@ public class MainActivity extends AppCompatActivity {
         }
         fragmentTransaction.commit();
     }
+
 }
