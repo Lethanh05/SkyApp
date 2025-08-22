@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.*; import android.widget.*;
 import androidx.annotation.*; import androidx.fragment.app.Fragment; import androidx.recyclerview.widget.*;
 import com.example.skymall.R;
+import com.example.skymall.data.remote.ApiService;
 import com.example.skymall.ui.profile.*;
 
 import java.util.*;
@@ -46,7 +47,7 @@ public class ProfileFragment extends Fragment {
         // TODO: lấy từ session/local db/API
         tvName.setText("Lê Quang Thạnh");
         tvPhone.setText("098xxx123");
-        // imgAvatar.setImageURI(...) hoặc Glide/Picasso
+
     }
 
     private void buildMenu(){
@@ -94,9 +95,32 @@ public class ProfileFragment extends Fragment {
         new AlertDialog.Builder(getContext())
                 .setTitle("Đăng xuất")
                 .setMessage("Bạn chắc chắn muốn đăng xuất?")
-                .setPositiveButton("Đăng xuất", (d,w)-> { /* TODO: clear session & chuyển LoginActivity */ toast("Đã đăng xuất"); })
-                .setNegativeButton("Huỷ", null).show();
+                .setPositiveButton("Đăng xuất", (d,w)-> {
+                    doLogout();
+                })
+                .setNegativeButton("Huỷ", null)
+                .show();
     }
+
+
+    private void doLogout(){
+        ApiService api = com.example.skymall.data.remote.ApiClient.create(requireContext());
+        api.logout().enqueue(new retrofit2.Callback<com.example.skymall.data.remote.DTO.MeResp>() {
+            @Override public void onResponse(retrofit2.Call<com.example.skymall.data.remote.DTO.MeResp> c,
+                                             retrofit2.Response<com.example.skymall.data.remote.DTO.MeResp> r) {
+
+                com.example.skymall.auth.SessionManager.clear(requireContext());
+                startActivity(new android.content.Intent(requireContext(), com.example.skymall.auth.LoginActivity.class));
+                requireActivity().finish();
+            }
+            @Override public void onFailure(retrofit2.Call<com.example.skymall.data.remote.DTO.MeResp> c, Throwable t) {
+                com.example.skymall.auth.SessionManager.clear(requireContext());
+                startActivity(new android.content.Intent(requireContext(), com.example.skymall.auth.LoginActivity.class));
+                requireActivity().finish();
+            }
+        });
+    }
+
 
     private void toast(String s){ Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show(); }
 }

@@ -1,5 +1,6 @@
 package com.example.skymall;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.widget.Toast;
@@ -22,6 +23,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        if (!com.example.skymall.auth.SessionManager.isLoggedIn(this)) {
+            startActivity(new Intent(this, com.example.skymall.auth.LoginActivity.class));
+            finish();
+            return;
+        }
 
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment(), true);

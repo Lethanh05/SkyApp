@@ -2,22 +2,73 @@ package com.example.skymall.data.remote;
 
 import com.example.skymall.data.model.Category;
 import com.example.skymall.data.model.Product;
+import com.example.skymall.data.remote.DTO.AuthResp;
+import com.example.skymall.data.remote.DTO.MeResp;
+import com.example.skymall.data.remote.DTO.UploadResp;
+
 import java.util.List;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.Field;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface ApiService {
-    @GET("api/categories") Call<List<Category>> getCategories();
-    @GET("api/products")   Call<List<Product>>  getProducts(@Query("category_id") Integer categoryId,
-                                                            @Query("q") String q,
-                                                            @Query("page") Integer page,
-                                                            @Query("limit") Integer limit);
-    @GET("api/products/flashsale") Call<List<Product>> getFlashSale();
-    @GET("api/store/products") // ví dụ: https://yourdomain.com/api/store/products?store_id=1&q=ao&page=1&limit=20
-    Call<List<Product>> getStoreProducts(@Query("store_id") int storeId,
-                                         @Query("q") String q,
-                                         @Query("page") Integer page,
-                                         @Query("limit") Integer limit);
 
+    @GET("api/product/categories")
+    Call<List<Category>> getCategories();
+
+    @GET("api/product/products")
+    Call<List<Product>> getProducts(
+            @Query("category_id") Integer categoryId,
+            @Query("q")           String q,
+            @Query("page")        Integer page,
+            @Query("limit")       Integer limit
+    );
+
+    @GET("api/product/flashsale")
+    Call<List<Product>> getFlashSale();
+
+    @GET("api/store/products")
+    Call<List<Product>> getStoreProducts(
+            @Query("store_id") int storeId,
+            @Query("q")        String q,
+            @Query("page")     Integer page,
+            @Query("limit")    Integer limit
+    );
+
+    @FormUrlEncoded
+    @POST("api/auth/register")
+    Call<AuthResp> register(
+            @Field("name")     String name,
+            @Field("email")    String email,
+            @Field("password") String password
+    );
+
+    @FormUrlEncoded
+    @POST("api/auth/login")
+    Call<AuthResp> login(
+            @Field("email")    String email,
+            @Field("password") String password
+    );
+
+    @GET("api/auth/me")
+    Call<MeResp> me();
+
+    @POST("api/auth/logout")
+    Call<MeResp> logout();
+
+    @Multipart
+    @POST("api/img/upload_avatar")
+    Call<UploadResp> uploadAvatar(
+            @Part MultipartBody.Part avatar,
+            @Part("user_id") RequestBody userId
+            // Nếu sau này server lấy user_id từ token thì bỏ tham số này đi.
+    );
 }

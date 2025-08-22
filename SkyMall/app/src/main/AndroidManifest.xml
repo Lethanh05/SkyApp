@@ -22,5 +22,9 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".auth.LoginActivity"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".auth.RegisterActivity" />
     </application>
 </manifest>
