@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/voucher_card"
+    android:id="@+id/history_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -18,33 +18,30 @@
         android:padding="16dp"
         android:baselineAligned="false">
 
-        <!-- Voucher Icon/Value -->
+        <!-- Icon -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
+            android:layout_weight="0.2"
             android:orientation="vertical"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/tv_voucher_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Giảm 30%"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/skymall_primary"
-                android:gravity="center" />
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_voucher"
+                app:tint="@color/skymall_primary"
+                android:contentDescription="Voucher icon" />
 
         </LinearLayout>
 
-        <!-- Voucher Details -->
+        <!-- Content -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.7"
+            android:layout_weight="0.8"
             android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:layout_marginStart="12dp">
 
             <TextView
                 android:id="@+id/tv_voucher_code"
@@ -56,33 +53,43 @@
                 android:textColor="@android:color/black" />
 
             <TextView
-                android:id="@+id/tv_min_order"
+                android:id="@+id/tv_voucher_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Đơn tối thiểu 100.000đ"
+                android:text="Giảm 30%"
                 android:textSize="14sp"
+                android:textColor="@color/skymall_primary"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/tv_order_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đơn hàng #12345"
+                android:textSize="12sp"
                 android:textColor="@android:color/darker_gray"
                 android:layout_marginTop="4dp" />
 
             <TextView
-                android:id="@+id/tv_end_date"
+                android:id="@+id/tv_order_total"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="HSD: 31/12/2024"
-                android:textSize="12sp"
-                android:textColor="@android:color/holo_red_dark"
-                android:layout_marginTop="4dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/tv_usage_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Còn 5/10 • Bạn đã dùng 0/1"
+                android:text="Tổng tiền: 250.000đ"
                 android:textSize="12sp"
                 android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/tv_used_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đã dùng: 24/08/2024 14:30"
+                android:textSize="11sp"
+                android:textColor="@android:color/darker_gray"
                 android:layout_marginTop="4dp"
-                android:visibility="gone" />
+                app:drawableStartCompat="@drawable/ic_calendar"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical" />
 
         </LinearLayout>
 

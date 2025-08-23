@@ -5,4 +5,18 @@
     <string name="cd_search_icon">Tìm kiếm</string>
     <string name="search_hint">Tìm sản phẩm...</string>
     <string name="add">Thêm</string>
+
+    <!-- Voucher Error Messages -->
+    <string name="error_voucher_not_found">Không tìm thấy voucher</string>
+    <string name="error_voucher_not_started">Voucher chưa có hiệu lực</string>
+    <string name="error_voucher_expired">Voucher đã hết hạn</string>
+    <string name="error_min_order_value_not_met">Đơn hàng chưa đạt giá trị tối thiểu</string>
+    <string name="error_voucher_usage_limit_exceeded">Voucher đã hết lượt sử dụng</string>
+    <string name="error_user_usage_limit_exceeded">Bạn đã sử dụng hết lượt cho voucher này</string>
+    <string name="error_voucher_invalid">Voucher không hợp lệ</string>
+    <string name="error_unauthorized">Không có quyền truy cập</string>
+    <string name="error_missing_parameters">Thiếu thông tin cần thiết</string>
+    <string name="error_order_not_found">Không tìm thấy đơn hàng</string>
+    <string name="error_voucher_already_used">Voucher đã được sử dụng cho đơn hàng này</string>
+    <string name="error_server_error">Lỗi máy chủ</string>
 </resources>

@@ -54,6 +54,19 @@
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName=".MainActivity" />
 
+        <activity
+            android:name=".ui.security.ChangePasswordActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.voucher.VoucherActivity"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.voucher.VoucherHistoryActivity"
+            android:parentActivityName=".ui.voucher.VoucherActivity" />
+
         <!-- FileProvider cho chụp ảnh -->
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -175,7 +175,10 @@ public class ProfileFragment extends Fragment {
         Intent intent = new Intent(getContext(), com.example.skymall.ui.notification.NotificationActivity.class);
         startActivity(intent);
     }
-    private void openSecurity(){ toast("Mở Bảo mật & Đổi mật khẩu"); }
+    private void openSecurity(){
+        Intent intent = new Intent(getContext(), com.example.skymall.ui.security.ChangePasswordActivity.class);
+        startActivity(intent);
+    }
     private void openHelp(){ toast("Mở Trung tâm trợ giúp"); }
 
     // ====== Menu cho Store Owner ======

@@ -22,7 +22,8 @@ public class VoucherListFragment extends Fragment {
         emptyView = v.findViewById(R.id.emptyView);
 
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new VoucherAdapter(this::applyVoucher);
+        adapter = new VoucherAdapter();
+        adapter.setOnVoucherClickListener(this::applyVoucher);
         rv.setAdapter(adapter);
 
         api = ApiClient.create(requireContext());
@@ -34,27 +35,32 @@ public class VoucherListFragment extends Fragment {
 
     private void loadVouchers() {
         swipe.setRefreshing(true);
-        // TODO: gọi API thật: api.getVouchersAll()
-        // Demo dữ liệu giả:
-        List<Voucher> demo = new ArrayList<>();
-        demo.add(mock("Giảm 30k", 199000, System.currentTimeMillis(), System.currentTimeMillis()+7L*86400000, false, false, "Áp dụng toàn shop"));
-        demo.add(mock("Giảm 10%", 0, System.currentTimeMillis(), System.currentTimeMillis()+30L*86400000, false, false, "Tối đa 50k"));
-        demo.add(mock("Giảm 50k", 299000, System.currentTimeMillis()-20L*86400000, System.currentTimeMillis()-1L*86400000, false, true, "Hết hạn"));
-
-        adapter.submit(demo);
-        emptyView.setVisibility(demo.isEmpty() ? View.VISIBLE : View.GONE);
-        swipe.setRefreshing(false);
-    }
-
-    private Voucher mock(String title, int minSpend, long start, long end, boolean used, boolean expired, String note){
-        Voucher v = new Voucher();
-        v.id = UUID.randomUUID().toString();
-        v.title = title; v.minSpend = minSpend; v.startAt = start; v.endAt = end; v.used = used; v.expired = expired; v.note = note;
-        return v;
+        api.getVouchers(1, 50).enqueue(new retrofit2.Callback<com.example.skymall.data.remote.DTO.VoucherListResp>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.example.skymall.data.remote.DTO.VoucherListResp> call, retrofit2.Response<com.example.skymall.data.remote.DTO.VoucherListResp> response) {
+                swipe.setRefreshing(false);
+                if (response.isSuccessful() && response.body() != null && response.body().success) {
+                    List<Voucher> vouchers = response.body().vouchers;
+                    adapter.setVouchers(vouchers != null ? vouchers : new ArrayList<>());
+                    emptyView.setVisibility((vouchers == null || vouchers.isEmpty()) ? View.VISIBLE : View.GONE);
+                } else {
+                    adapter.setVouchers(new ArrayList<>());
+                    emptyView.setVisibility(View.VISIBLE);
+                    Toast.makeText(getContext(), "Không lấy được danh sách voucher", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(retrofit2.Call<com.example.skymall.data.remote.DTO.VoucherListResp> call, Throwable t) {
+                swipe.setRefreshing(false);
+                adapter.setVouchers(new ArrayList<>());
+                emptyView.setVisibility(View.VISIBLE);
+                Toast.makeText(getContext(), "Lỗi kết nối server", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void applyVoucher(Voucher v) {
-        Toast.makeText(getContext(), "Đã chọn: " + v.title, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Đã chọn: " + v.code, Toast.LENGTH_SHORT).show();
         // TODO: trả về cho giỏ hàng/checkout qua ViewModel/FragmentResult
     }
 }

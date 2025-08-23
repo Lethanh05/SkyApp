@@ -3,11 +3,16 @@ package com.example.skymall.data.remote;
 import com.example.skymall.data.model.Category;
 import com.example.skymall.data.model.Product;
 import com.example.skymall.data.remote.DTO.AuthResp;
+import com.example.skymall.data.remote.DTO.BaseResp;
 import com.example.skymall.data.remote.DTO.MeResp;
 import com.example.skymall.data.remote.DTO.OrderDto;
 import com.example.skymall.data.remote.DTO.OrderItemDto;
 import com.example.skymall.data.remote.DTO.OrderStatusEventDto;
 import com.example.skymall.data.remote.DTO.UploadResp;
+import com.example.skymall.data.remote.DTO.VoucherCheckResp;
+import com.example.skymall.data.remote.DTO.VoucherHistoryResp;
+import com.example.skymall.data.remote.DTO.VoucherListResp;
+import com.example.skymall.data.remote.DTO.VoucherUseResp;
 
 import java.util.List;
 
@@ -78,6 +83,14 @@ public interface ApiService {
             @Field("gender")     String gender
     );
 
+    @FormUrlEncoded
+    @POST("api/auth/change-password.php")
+    Call<BaseResp> changePassword(
+            @Field("current_password") String currentPassword,
+            @Field("new_password")     String newPassword,
+            @Field("confirm_password") String confirmPassword
+    );
+
     @Multipart
     @POST("api/user/update_profile.php")
     Call<UploadResp> uploadAvatar(@Part MultipartBody.Part avatar);
@@ -96,4 +109,31 @@ public interface ApiService {
     // GET /orders/{id}/timeline
     @GET("orders/{id}/timeline")
     Call<List<OrderStatusEventDto>> getOrderTimeline(@Path("id") int id);
+
+    // Voucher APIs
+    @GET("api/voucher/list.php")
+    Call<VoucherListResp> getVouchers(
+            @Query("page") Integer page,
+            @Query("limit") Integer limit
+    );
+
+    @FormUrlEncoded
+    @POST("api/voucher/check.php")
+    Call<VoucherCheckResp> checkVoucher(
+            @Field("code") String code,
+            @Field("order_value") double orderValue
+    );
+
+    @FormUrlEncoded
+    @POST("api/voucher/use.php")
+    Call<VoucherUseResp> useVoucher(
+            @Field("voucher_id") int voucherId,
+            @Field("order_id") int orderId
+    );
+
+    @GET("api/voucher/history.php")
+    Call<VoucherHistoryResp> getVoucherHistory(
+            @Query("page") Integer page,
+            @Query("limit") Integer limit
+    );
 }

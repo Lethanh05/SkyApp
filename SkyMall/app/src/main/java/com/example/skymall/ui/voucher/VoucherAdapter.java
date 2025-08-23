@@ -1,60 +1,124 @@
 package com.example.skymall.ui.voucher;
 
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.skymall.R;
 import com.example.skymall.data.model.Voucher;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
-public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VH> {
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-    public interface OnApplyClick { void onApply(Voucher v); }
+public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherViewHolder> {
+    private List<Voucher> vouchers = new ArrayList<>();
+    private OnVoucherClickListener onVoucherClickListener;
 
-    private final List<Voucher> data = new ArrayList<>();
-    private final OnApplyClick onApply;
-    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-
-    public VoucherAdapter(OnApplyClick onApply) { this.onApply = onApply; }
-
-    public void submit(List<Voucher> list){
-        data.clear(); if (list != null) data.addAll(list); notifyDataSetChanged();
+    public interface OnVoucherClickListener {
+        void onVoucherClick(Voucher voucher);
     }
 
-    @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int v) {
-        View item = LayoutInflater.from(p.getContext()).inflate(R.layout.item_voucher, p, false);
-        return new VH(item);
+    public void setOnVoucherClickListener(OnVoucherClickListener listener) {
+        this.onVoucherClickListener = listener;
     }
 
-    @Override public void onBindViewHolder(@NonNull VH h, int i) {
-        Voucher v = data.get(i);
-        h.tvTitle.setText(v.title);
-        String sub = "ĐH tối thiểu " + formatVnd(v.minSpend) + " • HSD: " + sdf.format(new Date(v.endAt));
-        h.tvSubtitle.setText(sub);
-        h.tvNote.setText(v.note != null ? v.note : "");
-
-        boolean disabled = v.expired || v.used;
-        h.btnApply.setEnabled(!disabled);
-        h.btnApply.setText(disabled ? (v.expired ? "Hết hạn" : "Đã dùng") : "Áp dụng");
-        h.btnApply.setOnClickListener(x -> { if (!disabled) onApply.onApply(v); });
+    public void setVouchers(List<Voucher> vouchers) {
+        this.vouchers = vouchers;
+        notifyDataSetChanged();
     }
 
-    @Override public int getItemCount(){ return data.size(); }
+    public void addVouchers(List<Voucher> newVouchers) {
+        int startPosition = this.vouchers.size();
+        this.vouchers.addAll(newVouchers);
+        notifyItemRangeInserted(startPosition, newVouchers.size());
+    }
 
-    static class VH extends RecyclerView.ViewHolder{
-        TextView tvTitle, tvSubtitle, tvNote; Button btnApply;
-        VH(@NonNull View v){
-            super(v);
-            tvTitle = v.findViewById(R.id.tvTitle);
-            tvSubtitle = v.findViewById(R.id.tvSubtitle);
-            tvNote = v.findViewById(R.id.tvNote);
-            btnApply = v.findViewById(R.id.btnApply);
+    @NonNull
+    @Override
+    public VoucherViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_voucher, parent, false);
+        return new VoucherViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull VoucherViewHolder holder, int position) {
+        Voucher voucher = vouchers.get(position);
+        holder.bind(voucher);
+    }
+
+    @Override
+    public int getItemCount() {
+        return vouchers.size();
+    }
+
+    class VoucherViewHolder extends RecyclerView.ViewHolder {
+        private TextView tvVoucherCode;
+        private TextView tvVoucherValue;
+        private TextView tvMinOrder;
+        private TextView tvEndDate;
+        private TextView tvUsageInfo;
+        private View voucherCard;
+
+        public VoucherViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvVoucherCode = itemView.findViewById(R.id.tv_voucher_code);
+            tvVoucherValue = itemView.findViewById(R.id.tv_voucher_value);
+            tvMinOrder = itemView.findViewById(R.id.tv_min_order);
+            tvEndDate = itemView.findViewById(R.id.tv_end_date);
+            tvUsageInfo = itemView.findViewById(R.id.tv_usage_info);
+            voucherCard = itemView.findViewById(R.id.voucher_card);
         }
-    }
 
-    private String formatVnd(int v){
-        return "₫" + String.format(Locale.getDefault(), "%,d", v).replace(',', '.');
+        public void bind(Voucher voucher) {
+            tvVoucherCode.setText(voucher.code);
+            tvVoucherValue.setText("Giảm " + voucher.getDisplayValue());
+
+            NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+            String minOrderText = "Đơn tối thiểu " + formatter.format(voucher.minOrderValue);
+            tvMinOrder.setText(minOrderText);
+
+            if (voucher.endDate != null) {
+                tvEndDate.setText("HSD: " + voucher.endDate);
+                tvEndDate.setVisibility(View.VISIBLE);
+            } else {
+                tvEndDate.setVisibility(View.GONE);
+            }
+
+            // Hiển thị thông tin sử dụng
+            StringBuilder usageInfo = new StringBuilder();
+            if (voucher.usageLimit != null) {
+                usageInfo.append("Còn ").append(voucher.remaining != null ? voucher.remaining : 0)
+                        .append("/").append(voucher.usageLimit);
+            }
+            if (voucher.perUserLimit != null) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+
+            if (usageInfo.length() > 0) {
+                tvUsageInfo.setText(usageInfo.toString());
+                tvUsageInfo.setVisibility(View.VISIBLE);
+            } else {
+                tvUsageInfo.setVisibility(View.GONE);
+            }
+
+            // Xử lý click
+            voucherCard.setOnClickListener(v -> {
+                if (onVoucherClickListener != null && voucher.canUse()) {
+                    onVoucherClickListener.onVoucherClick(voucher);
+                }
+            });
+
+            // Thay đổi giao diện nếu voucher không thể sử dụng
+            voucherCard.setAlpha(voucher.canUse() ? 1.0f : 0.5f);
+        }
     }
 }
