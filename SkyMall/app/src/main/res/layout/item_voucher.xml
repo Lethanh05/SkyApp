@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardUseCompatPadding="true"
+    app:cardCornerRadius="16dp"
+    app:strokeColor="#EEEEEE"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:padding="12dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imgBadge"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_voucher"
+            android:tint="@color/skymall_primary"/>
+
+        <LinearLayout
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:text="Giảm 30k"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:text="ĐH tối thiểu 199k • HSD: 31/12/2025"
+                android:textColor="#666"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"/>
+
+            <TextView
+                android:id="@+id/tvNote"
+                android:text="Áp dụng toàn shop"
+                android:textColor="#888"
+                android:textSize="11sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnApply"
+            android:layout_width="84dp"
+            android:layout_height="40dp"
+            android:text="Áp dụng" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

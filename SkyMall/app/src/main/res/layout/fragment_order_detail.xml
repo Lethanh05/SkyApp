@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvOrderCode"
+                android:text="#123456"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_marginStart="8dp"
+                android:text="processing"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:background="@android:color/holo_blue_dark"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvCreatedAt"
+            android:text="Tạo: 2025-08-23 10:00"
+            android:layout_marginTop="4dp" />
+
+        <!-- Địa chỉ -->
+        <TextView
+            android:text="Địa chỉ nhận"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/tvReceiver"
+            android:text="Nguyễn A - 0909xxx" />
+
+        <TextView
+            android:id="@+id/tvAddressFull"
+            android:text="123 LTK, P.7, Q.10, HCM" />
+
+        <!-- Items -->
+        <TextView
+            android:text="Sản phẩm"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Tổng tiền -->
+        <TextView
+            android:text="Thanh toán"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/tvSubtotal"
+            android:text="Tạm tính: ₫..." />
+
+        <TextView
+            android:id="@+id/tvDiscount"
+            android:text="Giảm giá: -₫..." />
+
+        <TextView
+            android:id="@+id/tvShip"
+            android:text="Phí vận chuyển: ₫..." />
+
+        <TextView
+            android:id="@+id/tvVoucher"
+            android:text="Mã giảm: ..." />
+
+        <TextView
+            android:id="@+id/tvGrandTotal"
+            android:text="Thành tiền: ₫..."
+            android:textStyle="bold" />
+
+        <!-- Timeline -->
+        <TextView
+            android:text="Trạng thái đơn"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTimeline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+</ScrollView>

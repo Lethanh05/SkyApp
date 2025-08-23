@@ -2,4 +2,7 @@ package com.example.skymall.data.remote.DTO;
 
 
 public class AuthResp { public boolean success; public String token; public User user;
-    public static class User { public String id, name, email; } }
+    public static class User {
+        public String id, name, email, role; // Thêm role vào AuthResp.User
+    }
+}

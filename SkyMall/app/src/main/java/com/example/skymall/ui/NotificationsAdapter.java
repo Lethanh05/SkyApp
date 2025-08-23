@@ -1,4 +1,3 @@
-
 package com.example.skymall.ui;
 
 import android.view.*; import android.widget.*;
@@ -35,10 +34,10 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         TextView tvTitle, tvMessage, tvTime; View dotUnread;
         public VH(@NonNull View itemView) {
             super(itemView);
-            tvTitle = itemView.findViewById(R.id.tvTitle);
-            tvMessage = itemView.findViewById(R.id.tvMessage);
-            tvTime = itemView.findViewById(R.id.tvTime);
-            dotUnread = itemView.findViewById(R.id.dotUnread);
+            tvTitle = itemView.findViewById(R.id.notification_title);
+            tvMessage = itemView.findViewById(R.id.notification_message);
+            tvTime = itemView.findViewById(R.id.notification_time);
+            dotUnread = itemView.findViewById(R.id.unread_indicator);
         }
     }
 }

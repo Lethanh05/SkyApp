@@ -1,4 +1,3 @@
-
 package com.example.skymall.auth;
 
 import android.content.Intent; import android.os.Bundle; import android.widget.*;
@@ -29,7 +28,9 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override public void onResponse(Call<AuthResp> call, Response<AuthResp> res) {
                     AuthResp b = res.body();
                     if (res.isSuccessful() && b!=null && b.success){
-                        SessionManager.save(RegisterActivity.this, b.token, b.user.id, b.user.name, b.user.email);
+                        // Lưu thông tin user với role mặc định là customer
+                        String userRole = b.user.role != null ? b.user.role : "customer"; // Mặc định customer khi đăng ký
+                        SessionManager.save(RegisterActivity.this, b.token, b.user.id, b.user.name, b.user.email, userRole);
                         startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                         finish();
                     } else toast("Email đã tồn tại?");

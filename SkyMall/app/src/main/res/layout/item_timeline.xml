@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@android:drawable/presence_online" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="8dp">
+
+        <TextView
+            android:id="@+id/tvEvent"
+            android:text="paid → shipped" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:text="2025-08-23 14:35" />
+
+        <TextView
+            android:id="@+id/tvNote"
+            android:text="Đã rời kho"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>
