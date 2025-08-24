@@ -12,6 +12,9 @@ public class VoucherListResp {
     @SerializedName("vouchers")
     public List<Voucher> vouchers;
 
+    @SerializedName("data")
+    public List<Voucher> data;
+
     @SerializedName("pagination")
     public Pagination pagination;
 

@@ -1,5 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <size android:width="6dp" android:height="6dp"/> <!-- dot nhỏ -->
-    <solid android:color="#BDBDBD"/> <!-- xám nhạt -->
+    <solid android:color="@android:color/darker_gray" />
+    <size android:width="8dp" android:height="8dp" />
 </shape>
+

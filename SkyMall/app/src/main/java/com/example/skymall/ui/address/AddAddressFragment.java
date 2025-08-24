@@ -44,10 +44,10 @@ public class AddAddressFragment extends Fragment {
             if (editing != null) {
                 edName.setText(editing.name);
                 edPhone.setText(editing.phone);
-                edLine1.setText(editing.line1);
+                edLine1.setText(editing.addressLine);  // Use addressLine directly
                 edWard.setText(editing.ward);
                 edDistrict.setText(editing.district);
-                edProvince.setText(editing.province);
+                edProvince.setText(editing.province);  // Use province directly
                 edNote.setText(editing.note);
                 cbDefault.setChecked(editing.isDefault);
             }
@@ -62,29 +62,78 @@ public class AddAddressFragment extends Fragment {
                 note = str(edNote);
         boolean isDefault = cbDefault.isChecked();
 
+        // Validate required fields according to API
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(phone) ||
-                TextUtils.isEmpty(line1) || TextUtils.isEmpty(ward) ||
-                TextUtils.isEmpty(district) || TextUtils.isEmpty(province)) {
-            Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show();
+                TextUtils.isEmpty(line1)) {
+            Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin bắt buộc (Tên, SĐT, Địa chỉ)", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (editing == null) {
-            Address a = new Address();
-            a.name = name; a.phone = phone;
-            a.line1 = line1; a.ward = ward; a.district = district; a.province = province;
-            a.note = note; a.isDefault = isDefault;
-            AddressRepository.get().add(a);
-            Toast.makeText(getContext(), "Đã thêm địa chỉ", Toast.LENGTH_SHORT).show();
-        } else {
-            editing.name = name; editing.phone = phone;
-            editing.line1 = line1; editing.ward = ward; editing.district = district; editing.province = province;
-            editing.note = note; editing.isDefault = isDefault;
-            AddressRepository.get().update(editing);
-            Toast.makeText(getContext(), "Đã cập nhật địa chỉ", Toast.LENGTH_SHORT).show();
-        }
+        // Disable save button during API call
+        Button btnSave = getView().findViewById(R.id.btnSave);
+        btnSave.setEnabled(false);
+        btnSave.setText("Đang lưu...");
 
-        requireActivity().getSupportFragmentManager().popBackStack();
+        if (editing == null) {
+            // Create new address
+            Address a = new Address();
+            a.name = name;
+            a.phone = phone;
+            a.addressLine = line1;
+            a.ward = ward;
+            a.district = district;
+            a.province = province;  // Use province field
+            a.note = note;
+            a.isDefault = isDefault;
+
+            AddressRepository.get(requireContext()).add(a, new AddressRepository.AddressActionCallback() {
+                @Override
+                public void onSuccess() {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Đã thêm địa chỉ", Toast.LENGTH_SHORT).show();
+                        requireActivity().getSupportFragmentManager().popBackStack();
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    if (getContext() != null) {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Lưu");
+                        Toast.makeText(getContext(), "Lỗi: " + error, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } else {
+            // Update existing address
+            editing.name = name;
+            editing.phone = phone;
+            editing.addressLine = line1;
+            editing.ward = ward;
+            editing.district = district;
+            editing.province = province;  // Use province field
+            editing.note = note;
+            editing.isDefault = isDefault;
+
+            AddressRepository.get(requireContext()).update(editing, new AddressRepository.AddressActionCallback() {
+                @Override
+                public void onSuccess() {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Đã cập nhật địa chỉ", Toast.LENGTH_SHORT).show();
+                        requireActivity().getSupportFragmentManager().popBackStack();
+                    }
+                }
+
+                @Override
+                public void onError(String error) {
+                    if (getContext() != null) {
+                        btnSave.setEnabled(true);
+                        btnSave.setText("Lưu");
+                        Toast.makeText(getContext(), "Lỗi: " + error, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
     private String str(TextInputEditText ed) {

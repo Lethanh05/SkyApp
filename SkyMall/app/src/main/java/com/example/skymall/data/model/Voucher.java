@@ -1,65 +1,47 @@
 package com.example.skymall.data.model;
 
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class Voucher {
-    @SerializedName("id")
+public class Voucher implements Serializable {
     public int id;
-
-    @SerializedName("code")
     public String code;
+    public String title;
+    public String description;
+    public String discountType; // "percentage" or "fixed"
+    public double discountValue;
+    public double maxDiscountAmount;
+    public double minOrderAmount;
+    public String expiryDate;
+    public boolean isActive;
+    public int usageLimit;
+    public int usedCount;
+    public String createdAt;
 
-    @SerializedName("type")
-    public String type; // "percentage" hoặc "fixed"
-
-    @SerializedName("value")
-    public double value;
-
-    @SerializedName("min_order_value")
-    public double minOrderValue;
-
-    @SerializedName("start_date")
-    public String startDate;
-
-    @SerializedName("end_date")
-    public String endDate;
-
-    @SerializedName("usage_limit")
-    public Integer usageLimit; // có thể null
-
-    @SerializedName("per_user_limit")
-    public Integer perUserLimit; // có thể null
-
-    @SerializedName("total_used")
-    public int totalUsed;
-
-    @SerializedName("user_used")
-    public int userUsed;
-
-    @SerializedName("remaining")
-    public Integer remaining; // có thể null
-
-    // Constructor
     public Voucher() {}
 
-    // Helper methods
-    public boolean isExpired() {
-        if (endDate == null) return false;
-        // Implement date comparison logic if needed
-        return false;
+    public boolean isValid() {
+        return isActive && usedCount < usageLimit;
     }
 
-    public boolean canUse() {
-        return !isExpired() &&
-               (usageLimit == null || totalUsed < usageLimit) &&
-               (perUserLimit == null || userUsed < perUserLimit);
+    public boolean canApplyToOrder(double orderAmount) {
+        return isValid() && orderAmount >= minOrderAmount;
     }
 
-    public String getDisplayValue() {
-        if ("percentage".equals(type)) {
-            return (int)value + "%";
-        } else {
-            return String.format("%.0fđ", value);
+    public double calculateDiscount(double orderAmount) {
+        if (!canApplyToOrder(orderAmount)) {
+            return 0;
         }
+
+        double discount = 0;
+        if ("percentage".equals(discountType)) {
+            discount = orderAmount * discountValue / 100;
+            if (maxDiscountAmount > 0) {
+                discount = Math.min(discount, maxDiscountAmount);
+            }
+        } else {
+            discount = discountValue;
+        }
+
+        return Math.min(discount, orderAmount);
     }
 }

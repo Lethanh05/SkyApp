@@ -78,29 +78,37 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
 
         public void bind(Voucher voucher) {
             tvVoucherCode.setText(voucher.code);
-            tvVoucherValue.setText("Giảm " + voucher.getDisplayValue());
 
+            // Format value based on type - sử dụng discountType và discountValue
+            String valueText;
+            if ("percentage".equals(voucher.discountType)) {
+                valueText = "Giảm " + String.format("%.0f%%", voucher.discountValue);
+            } else {
+                NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                valueText = "Giảm " + formatter.format(voucher.discountValue);
+            }
+            tvVoucherValue.setText(valueText);
+
+            // Sử dụng minOrderAmount thay vì minOrderValue
             NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-            String minOrderText = "Đơn tối thiểu " + formatter.format(voucher.minOrderValue);
+            String minOrderText = "Đơn tối thiểu " + formatter.format(voucher.minOrderAmount);
             tvMinOrder.setText(minOrderText);
 
-            if (voucher.endDate != null) {
-                tvEndDate.setText("HSD: " + voucher.endDate);
+            // Sử dụng expiryDate thay vì endDate
+            if (voucher.expiryDate != null && !voucher.expiryDate.isEmpty()) {
+                tvEndDate.setText("HSD: " + voucher.expiryDate);
                 tvEndDate.setVisibility(View.VISIBLE);
             } else {
                 tvEndDate.setVisibility(View.GONE);
             }
 
-            // Hiển thị thông tin sử dụng
+            // Hiển thị thông tin sử dụng - sử dụng các field có sẵn
             StringBuilder usageInfo = new StringBuilder();
-            if (voucher.usageLimit != null) {
-                usageInfo.append("Còn ").append(voucher.remaining != null ? voucher.remaining : 0)
-                        .append("/").append(voucher.usageLimit);
-            }
-            if (voucher.perUserLimit != null) {
-                if (usageInfo.length() > 0) usageInfo.append(" • ");
-                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
-                        .append("/").append(voucher.perUserLimit);
+            if (voucher.usageLimit > 0) { // usageLimit là int, không phải Integer
+                int remaining = voucher.usageLimit - voucher.usedCount;
+                usageInfo.append("Còn ").append(remaining).append("/").append(voucher.usageLimit);
+            } else {
+                usageInfo.append("Không giới hạn");
             }
 
             if (usageInfo.length() > 0) {
@@ -110,15 +118,15 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
                 tvUsageInfo.setVisibility(View.GONE);
             }
 
-            // Xử lý click
+            // Xử lý click - sử dụng isValid() method có sẵn
             voucherCard.setOnClickListener(v -> {
-                if (onVoucherClickListener != null && voucher.canUse()) {
+                if (onVoucherClickListener != null && voucher.isValid()) {
                     onVoucherClickListener.onVoucherClick(voucher);
                 }
             });
 
             // Thay đổi giao diện nếu voucher không thể sử dụng
-            voucherCard.setAlpha(voucher.canUse() ? 1.0f : 0.5f);
+            voucherCard.setAlpha(voucher.isValid() ? 1.0f : 0.5f);
         }
     }
 }

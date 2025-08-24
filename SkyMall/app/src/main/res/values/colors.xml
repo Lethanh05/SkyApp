@@ -1,8 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="skymall_primary">#64B5F6</color>
-    <color name="skymall_primary_dark">#1E88E5</color>
-    <color name="skymall_on_primary">#FFFFFF</color>
-    <color name="skymall_surface">#F6FAFF</color>
-    <color name="black">#000000</color>
+    <!-- Basic Colors -->
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- SkyMall Primary Colors -->
+    <color name="skymall_primary">#1976D2</color>
+    <color name="skymall_primary_light">#42A5F5</color>
+    <color name="skymall_primary_dark">#0D47A1</color>
+
+    <!-- SkyMall Surface Colors -->
+    <color name="skymall_surface">#FFFFFF</color>
+    <color name="skymall_on_primary">#FFFFFF</color>
+    <color name="skymall_on_surface">#000000</color>
+
+    <!-- Primary Colors (keeping for compatibility) -->
+    <color name="primary">@color/skymall_primary</color>
+    <color name="primary_dark">@color/skymall_primary_dark</color>
+    <color name="primary_light">@color/skymall_primary_light</color>
+
+    <!-- Accent Colors -->
+    <color name="accent">#FF5722</color>
+    <color name="accent_light">#FF8A65</color>
+
+    <!-- Background Colors -->
+    <color name="background">#F5F5F5</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="card_background">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+
+    <!-- Status Colors -->
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FF9800</color>
+    <color name="error">#F44336</color>
+    <color name="info">#2196F3</color>
+
+    <!-- Special Colors -->
+    <color name="price_color">#F44336</color>
+    <color name="discount_color">#FF5722</color>
+    <color name="flash_sale_bg">#FFF3E0</color>
+    <color name="chip_active_text">#FFFFFF</color>
+    <color name="rank_silver">#C0C0C0</color>
+    <color name="rank_gold">#FFEB3B</color>
+    <color name="rank_bronze">#402B2B</color>
+
+    <!-- Transparent -->
+    <color name="transparent">#00000000</color>
+
+    <!-- Gray Scales -->
+    <color name="gray_50">#FAFAFA</color>
+    <color name="gray_100">#F5F5F5</color>
+    <color name="gray_200">#EEEEEE</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_400">#BDBDBD</color>
+    <color name="gray_500">#9E9E9E</color>
+    <color name="gray_600">#757575</color>
+    <color name="gray_700">#616161</color>
+    <color name="gray_800">#424242</color>
+    <color name="gray_900">#212121</color>
 </resources>

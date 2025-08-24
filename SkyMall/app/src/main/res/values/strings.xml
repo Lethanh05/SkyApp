@@ -19,4 +19,6 @@
     <string name="error_order_not_found">Không tìm thấy đơn hàng</string>
     <string name="error_voucher_already_used">Voucher đã được sử dụng cho đơn hàng này</string>
     <string name="error_server_error">Lỗi máy chủ</string>
+    <string name="preview_image">Ảnh xem trước sản phẩm</string>
+    <string name="active_switch">Kích hoạt (active)</string>
 </resources>

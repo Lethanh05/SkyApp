@@ -17,6 +17,8 @@ import com.example.skymall.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.util.List;
+
 public class AddressListFragment extends Fragment implements AddressAdapter.Listener {
 
     private AddressAdapter adapter;
@@ -38,15 +40,33 @@ public class AddressListFragment extends Fragment implements AddressAdapter.List
         rv.setAdapter(adapter);
         rv.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
-        srl.setOnRefreshListener(() -> {
-            adapter.submit(AddressRepository.get().list());
-            srl.setRefreshing(false);
-        });
-
+        srl.setOnRefreshListener(this::loadAddresses);
         fab.setOnClickListener(view -> openAddAddress(null));
 
-        // Load lần đầu
-        adapter.submit(AddressRepository.get().list());
+        // Load addresses on first time
+        loadAddresses();
+    }
+
+    private void loadAddresses() {
+        AddressRepository.get(requireContext()).loadAddresses(new AddressRepository.AddressCallback() {
+            @Override
+            public void onSuccess(List<Address> addresses) {
+                srl.setRefreshing(false);
+                if (getContext() != null) {
+                    adapter.submit(addresses);
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                srl.setRefreshing(false);
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                    // Show cached data if available
+                    adapter.submit(AddressRepository.get(requireContext()).list());
+                }
+            }
+        });
     }
 
     private void openAddAddress(@Nullable Address edit) {
@@ -65,9 +85,22 @@ public class AddressListFragment extends Fragment implements AddressAdapter.List
 
     // Adapter callbacks
     @Override public void onSetDefault(Address a) {
-        AddressRepository.get().setDefault(a.id);
-        adapter.submit(AddressRepository.get().list());
-        Toast.makeText(getContext(), "Đã đặt làm mặc định", Toast.LENGTH_SHORT).show();
+        AddressRepository.get(requireContext()).setDefault(a.id, new AddressRepository.AddressActionCallback() {
+            @Override
+            public void onSuccess() {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Đã đặt làm mặc định", Toast.LENGTH_SHORT).show();
+                    loadAddresses(); // Reload to reflect changes
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi: " + error, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override public void onEdit(Address a) {
@@ -75,14 +108,27 @@ public class AddressListFragment extends Fragment implements AddressAdapter.List
     }
 
     @Override public void onDelete(Address a) {
-        AddressRepository.get().remove(a.id);
-        adapter.submit(AddressRepository.get().list());
-        Toast.makeText(getContext(), "Đã xóa địa chỉ", Toast.LENGTH_SHORT).show();
+        AddressRepository.get(requireContext()).remove(a.id, new AddressRepository.AddressActionCallback() {
+            @Override
+            public void onSuccess() {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Đã xóa địa chỉ", Toast.LENGTH_SHORT).show();
+                    loadAddresses(); // Reload to reflect changes
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi: " + error, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override public void onResume() {
         super.onResume();
         // Refresh khi quay lại từ màn thêm/sửa
-        if (adapter != null) adapter.submit(AddressRepository.get().list());
+        if (adapter != null) adapter.submit(AddressRepository.get(requireContext()).list());
     }
 }

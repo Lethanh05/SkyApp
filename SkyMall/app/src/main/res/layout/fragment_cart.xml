@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -29,19 +30,26 @@
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 
-    <!-- Danh sách sản phẩm -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCart"
+    <!-- SwipeRefreshLayout wrapping the RecyclerView -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingBottom="72dp"
         app:layout_constraintTop_toBottomOf="@id/rowSelectAll"
         app:layout_constraintBottom_toTopOf="@id/bottomBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Thanh tổng tiền + Mua ngay (cố định dưới) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- Bottom bar with total price and checkout button -->
     <LinearLayout
         android:id="@+id/bottomBar"
         android:layout_width="0dp"
@@ -51,38 +59,36 @@
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/tvTotalLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tổng thanh toán:"
-                android:textSize="12sp"/>
-            <TextView
-                android:id="@+id/tvTotalPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="₫0"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/skymall_primary"/>
-        </LinearLayout>
+            android:text="Tổng tiền:"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvTotalPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0đ"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_red_dark"
+            android:layout_marginEnd="12dp" />
 
         <Button
             android:id="@+id/btnCheckout"
-            android:layout_width="140dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Mua ngay"
-            android:textAllCaps="false"
-            android:backgroundTint="@color/skymall_primary"
-            android:textColor="@android:color/white"/>
+            android:backgroundTint="@android:color/holo_orange_dark" />
+
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

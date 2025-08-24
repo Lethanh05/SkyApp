@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.skymall.R;
 import com.example.skymall.data.model.Product;
-import com.example.skymall.data.remote.ApiClient;
+import com.example.skymall.data.remote.ApiManager;
 import com.example.skymall.data.remote.ApiService;
 
 import java.util.ArrayList;
@@ -62,12 +61,13 @@ public class StoreFragment extends Fragment {
         adapter = new ProductGridAdapter(new ArrayList<>());
         rv.setAdapter(adapter);
 
-        api = ApiClient.get("https://yourdomain.com/").create(ApiService.class);
-        
-        v.<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>findViewById(R.id.swipe)
-                .setOnRefreshListener(() -> {
-                    fetchProducts(etSearch.getText().toString().trim());
-                });
+        // Sử dụng ApiManager thay vì ApiClient.get()
+        api = ApiManager.getInstance(getContext()).getApiService();
+
+        androidx.swiperefreshlayout.widget.SwipeRefreshLayout swipeRefresh =
+                v.findViewById(R.id.swipe);
+        swipeRefresh.setOnRefreshListener(() -> fetchProducts(etSearch.getText().toString().trim()));
+
         etSearch.setOnEditorActionListener((tv, actionId, event) -> {
             fetchProducts(etSearch.getText().toString().trim());
             return true;
@@ -77,12 +77,17 @@ public class StoreFragment extends Fragment {
     }
 
     private void fetchProducts(@Nullable String keyword) {
-        final androidx.swiperefreshlayout.widget.SwipeRefreshLayout swipe = getView().findViewById(R.id.swipe);
+        View rootView = getView();
+        if (rootView == null) return;
+
+        final androidx.swiperefreshlayout.widget.SwipeRefreshLayout swipe =
+                rootView.findViewById(R.id.swipe);
         if (swipe != null) swipe.setRefreshing(true);
 
         api.getStoreProducts(storeId, TextUtils.isEmpty(keyword) ? null : keyword, 1, 40)
                 .enqueue(new Callback<List<Product>>() {
-                    @Override public void onResponse(Call<List<Product>> call, Response<List<Product>> res) {
+                    @Override
+                    public void onResponse(@NonNull Call<List<Product>> call, @NonNull Response<List<Product>> res) {
                         if (!isAdded()) return;
                         if (swipe != null) swipe.setRefreshing(false);
                         if (res.isSuccessful() && res.body()!=null) {
@@ -91,7 +96,8 @@ public class StoreFragment extends Fragment {
                             adapter.setData(new ArrayList<>());
                         }
                     }
-                    @Override public void onFailure(Call<List<Product>> call, Throwable t) {
+                    @Override
+                    public void onFailure(@NonNull Call<List<Product>> call, @NonNull Throwable t) {
                         if (!isAdded()) return;
                         if (swipe != null) swipe.setRefreshing(false);
                         adapter.setData(new ArrayList<>());
@@ -103,7 +109,10 @@ public class StoreFragment extends Fragment {
     static class ProductGridAdapter extends RecyclerView.Adapter<ProductGVH>{
         List<Product> data;
         ProductGridAdapter(List<Product> d){ data=d; }
-        void setData(List<Product> d){ data = d; notifyDataSetChanged(); }
+        void setData(List<Product> d){
+            data = d;
+            notifyItemRangeChanged(0, data.size());
+        }
 
         @NonNull @Override public ProductGVH onCreateViewHolder(@NonNull ViewGroup p, int vType) {
             View v = LayoutInflater.from(p.getContext()).inflate(R.layout.item_product_grid, p, false);
@@ -112,14 +121,18 @@ public class StoreFragment extends Fragment {
         @Override public void onBindViewHolder(@NonNull ProductGVH h, int i) {
             Product p = data.get(i);
             h.title.setText(p.name);
-            h.price.setText("₫" + String.format("%,.0f", p.price));
-            Glide.with(h.img.getContext()).load(p.image_url).into(h.img);
+            h.price.setText(String.format("₫%,.0f", p.price));
+            // Sử dụng field image thay vì image_url
+            Glide.with(h.img.getContext()).load(p.image).into(h.img);
         }
         @Override public int getItemCount(){ return data==null?0:data.size(); }
     }
+
     static class ProductGVH extends RecyclerView.ViewHolder {
-        android.widget.TextView title, price; ImageButton more; android.widget.ImageView img;
-        ProductGVH(@NonNull View v){ super(v);
+        android.widget.TextView title, price;
+        android.widget.ImageView img;
+        ProductGVH(@NonNull View v){
+            super(v);
             img=v.findViewById(R.id.img); title=v.findViewById(R.id.tvTitle); price=v.findViewById(R.id.tvPrice);
         }
     }

@@ -3,16 +3,16 @@ package com.example.skymall.ui.orders;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.*;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.skymall.R;
-import com.example.skymall.data.remote.ApiService;
 import com.example.skymall.data.remote.DTO.OrderDto;
-import com.example.skymall.utils.MoneyFmt;
+import com.example.skymall.data.remote.DTO.OrderListResp;
+import com.example.skymall.data.repository.CustomerOrderRepository;
 import java.util.*;
-import retrofit2.*;
 
 public class OrderListFragment extends Fragment {
     private static final String ARG_STATUS = "status";
@@ -21,7 +21,12 @@ public class OrderListFragment extends Fragment {
         OrderListFragment f = new OrderListFragment(); f.setArguments(b); return f;
     }
 
-    private RecyclerView rv; private TextView tvEmpty; private OrderListAdapter adapter;
+    private RecyclerView rv;
+    private TextView tvEmpty;
+    private OrderListAdapter adapter;
+    private CustomerOrderRepository orderRepository;
+    private int currentPage = 1;
+    private boolean isLoading = false;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup parent, @Nullable Bundle s) {
@@ -29,8 +34,12 @@ public class OrderListFragment extends Fragment {
     }
 
     @Override public void onViewCreated(@NonNull View v, @Nullable Bundle s) {
-        rv = v.findViewById(R.id.rvOrders); tvEmpty = v.findViewById(R.id.tvEmpty);
+        rv = v.findViewById(R.id.rvOrders);
+        tvEmpty = v.findViewById(R.id.tvEmpty);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        orderRepository = new CustomerOrderRepository(requireContext());
+
         adapter = new OrderListAdapter(o -> {
             // mở chi tiết
             getParentFragmentManager().beginTransaction()
@@ -38,23 +47,49 @@ public class OrderListFragment extends Fragment {
                     .addToBackStack(null).commit();
         });
         rv.setAdapter(adapter);
-        loadPage(1);
+        loadCustomerOrders();
     }
 
-    private void loadPage(int page){
-        String status = getArguments()!=null? getArguments().getString(ARG_STATUS): null;
-        ApiService api = com.example.skymall.data.remote.ApiClient.create(requireContext());
-        api.getOrders(status, page).enqueue(new Callback<List<OrderDto>>() {
-            @Override public void onResponse(Call<List<OrderDto>> c, Response<List<OrderDto>> r) {
-                List<OrderDto> data = r.body()!=null? r.body(): Collections.emptyList();
-                adapter.submitList(data);
-                tvEmpty.setVisibility(data.isEmpty()? View.VISIBLE: View.GONE);
+    private void loadCustomerOrders(){
+        if (isLoading) return;
+        isLoading = true;
+
+        orderRepository.getCustomerOrders(currentPage, 20, new CustomerOrderRepository.OrderListCallback() {
+            @Override
+            public void onSuccess(OrderListResp response) {
+                isLoading = false;
+                if (getContext() == null) return;
+
+                List<OrderDto> orders = response.data != null ? response.data : Collections.emptyList();
+
+                // Filter by status if specified
+                String targetStatus = getArguments() != null ? getArguments().getString(ARG_STATUS) : null;
+                if (targetStatus != null && !targetStatus.isEmpty()) {
+                    orders = filterOrdersByStatus(orders, targetStatus);
+                }
+
+                adapter.submitList(orders);
+                tvEmpty.setVisibility(orders.isEmpty() ? View.VISIBLE : View.GONE);
             }
-            @Override public void onFailure(Call<List<OrderDto>> c, Throwable t) {
-                adapter.submitList(Collections.emptyList());
-                tvEmpty.setVisibility(View.VISIBLE);
-                tvEmpty.setText("Không tải được đơn hàng 😢");
+
+            @Override
+            public void onError(String error) {
+                isLoading = false;
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                    tvEmpty.setVisibility(View.VISIBLE);
+                }
             }
         });
+    }
+
+    private List<OrderDto> filterOrdersByStatus(List<OrderDto> orders, String status) {
+        List<OrderDto> filtered = new ArrayList<>();
+        for (OrderDto order : orders) {
+            if (status.equals(order.status)) {
+                filtered.add(order);
+            }
+        }
+        return filtered;
     }
 }

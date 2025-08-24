@@ -1,140 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/skymall_primary"
-        android:popupTheme="@style/ThemeOverlay.Material3.Light"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:orientation="vertical">
+
+        <!-- Search Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-            <include
-                android:id="@+id/searchBar"
-                layout="@layout/layout_search_bar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp" />
-            <ImageButton
-                android:id="@+id/btnMessages"
-                android:layout_width="35dp"
-                android:layout_height="40dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/cd_messages"
-                android:clickable="true"
-                app:tint="@color/white"
-                android:src="@drawable/ic_chat" />
-            <ImageButton
-                android:id="@+id/btnCart"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/cd_cart"
-                android:clickable="true"
-                app:tint="@color/white"
-                android:src="@drawable/ic_cart" />
+            android:background="@android:color/white"
+            android:elevation="2dp"
+            android:padding="12dp">
+
+            <EditText
+                android:id="@+id/etSearch"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_search_box"
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="12dp"
+                android:hint="Tìm kiếm sản phẩm..."
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textSize="14sp" />
+
         </LinearLayout>
-    </com.google.android.material.appbar.MaterialToolbar>
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:fillViewport="true">
 
-
+        <!-- Banner Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:background="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:paddingBottom="16dp">
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/vpBanner"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:clipToPadding="false"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp" />
+                android:layout_height="200dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginTop="12dp" />
 
             <LinearLayout
                 android:id="@+id/dots"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal" />
 
+        </LinearLayout>
+
+        <!-- Categories Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:padding="12dp">
+
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Danh mục"
-                android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginTop="12dp"/>
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="12dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCategories"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginTop="6dp"/>
+                android:nestedScrollingEnabled="false" />
+
+        </LinearLayout>
+
+        <!-- Flash Sale Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:padding="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="12dp">
+                android:layout_marginBottom="12dp">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Flash Sale"
+                    android:text="⚡ Flash Sale"
+                    android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textSize="16sp"/>
+                    android:textColor="@color/accent" />
+
                 <TextView
-                    android:id="@+id/tvSeeAllFlash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Xem tất cả"/>
+                    android:text="Xem thêm >"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray" />
+
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvFlash"
+                android:id="@+id/rvFlashSale"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginTop="6dp"/>
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp" />
+
+        </LinearLayout>
+
+        <!-- Recommended Products Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:padding="12dp">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Gợi ý hôm nay"
-                android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginTop="12dp"/>
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="12dp" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvRecommend"
+                android:id="@+id/rvRecommended"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginTop="6dp"/>
-        </LinearLayout>
-    </ScrollView>
+                android:nestedScrollingEnabled="false" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

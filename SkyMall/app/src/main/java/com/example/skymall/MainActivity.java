@@ -28,6 +28,13 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
+        // Kiểm tra role, nếu là store hoặc admin thì chuyển hướng SellerHomeActivity
+        String role = com.example.skymall.auth.SessionManager.role(this);
+        if ("store".equals(role) || "admin".equals(role)) {
+            startActivity(new Intent(this, com.example.skymall.ui.seller.SellerHomeActivity.class));
+            finish();
+            return;
+        }
 
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment(), true);

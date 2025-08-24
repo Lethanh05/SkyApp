@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Voucher Code -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilVoucherCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Mã voucher"
+            app:boxStrokeColor="@color/skymall_primary"
+            app:hintTextColor="@color/skymall_primary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters"
+                android:maxLength="20" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Voucher Type -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Loại voucher"
+            android:textColor="@color/skymall_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerVoucherType"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/spinner_background" />
+
+        <!-- Voucher Value -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilVoucherValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Giá trị giảm"
+            app:boxStrokeColor="@color/skymall_primary"
+            app:hintTextColor="@color/skymall_primary"
+            app:startIconDrawable="@drawable/ic_percent"
+            app:startIconTint="@color/skymall_primary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Min Order Value -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilMinOrderValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Giá trị đơn hàng tối thiểu"
+            app:boxStrokeColor="@color/skymall_primary"
+            app:hintTextColor="@color/skymall_primary"
+            app:startIconDrawable="@drawable/ic_shopping_cart"
+            app:startIconTint="@color/skymall_primary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Date Selection Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Ngày bắt đầu"
+                    android:textColor="@color/skymall_primary"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStartDate"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Chọn ngày"
+                    android:textColor="@color/skymall_primary"
+                    app:icon="@drawable/ic_calendar"
+                    app:iconTint="@color/skymall_primary"
+                    app:strokeColor="@color/skymall_primary" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Ngày kết thúc"
+                    android:textColor="@color/skymall_primary"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEndDate"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Chọn ngày"
+                    android:textColor="@color/skymall_primary"
+                    app:icon="@drawable/ic_calendar"
+                    app:iconTint="@color/skymall_primary"
+                    app:strokeColor="@color/skymall_primary" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Usage Limits Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilUsageLimit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:hint="Số lượng tối đa (tùy chọn)"
+                app:boxStrokeColor="@color/skymall_primary"
+                app:hintTextColor="@color/skymall_primary"
+                app:startIconDrawable="@drawable/ic_numbers"
+                app:startIconTint="@color/skymall_primary">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPerUserLimit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:hint="Giới hạn/người (tùy chọn)"
+                app:boxStrokeColor="@color/skymall_primary"
+                app:hintTextColor="@color/skymall_primary"
+                app:startIconDrawable="@drawable/ic_person"
+                app:startIconTint="@color/skymall_primary">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <!-- Description -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mô tả voucher (tùy chọn)"
+            app:boxStrokeColor="@color/skymall_primary"
+            app:hintTextColor="@color/skymall_primary"
+            app:startIconDrawable="@drawable/ic_description"
+            app:startIconTint="@color/skymall_primary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:lines="3"
+                android:maxLines="5" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+</ScrollView>
