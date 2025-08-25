@@ -10,14 +10,56 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/white"
+        android:background="@color/skymall_primary"
         android:elevation="4dp"
         android:title="Thanh toán" />
+    <!-- Address Section -->
+    <LinearLayout
+        android:id="@+id/rowAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:layout_margin="8dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Địa chỉ giao hàng"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/btnSelectAddress"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chọn địa chỉ"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvAddressLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chưa chọn địa chỉ"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -109,6 +151,15 @@
                         android:textSize="12sp"
                         android:textColor="@android:color/holo_red_dark"
                         android:layout_marginTop="2dp" />
+                    <TextView
+                        android:id="@+id/tvVoucherDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Không có mô tả"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray"
+                        android:layout_marginTop="2dp"/>
+
 
                 </LinearLayout>
 

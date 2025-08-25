@@ -6,6 +6,7 @@ import com.example.skymall.data.remote.DTO.AddressDetailResp;
 import com.example.skymall.data.remote.DTO.AddressListResp;
 import com.example.skymall.data.remote.DTO.AuthResp;
 import com.example.skymall.data.remote.DTO.BaseResp;
+import com.example.skymall.data.remote.DTO.CartResp;
 import com.example.skymall.data.remote.DTO.CategoryListResp;
 import com.example.skymall.data.remote.DTO.CreateOrderResp;
 import com.example.skymall.data.remote.DTO.MeResp;
@@ -44,12 +45,13 @@ public interface ApiService {
 
     @GET("api/store/categories.php")
     Call<CategoryListResp> storeCategories();
+
     @GET("api/product/products")
     Call<List<Product>> getProducts(
             @Query("category_id") Integer categoryId,
-            @Query("q")           String q,
-            @Query("page")        Integer page,
-            @Query("limit")       Integer limit
+            @Query("q") String q,
+            @Query("page") Integer page,
+            @Query("limit") Integer limit
     );
 
     @GET("api/product/flashsale")
@@ -61,18 +63,19 @@ public interface ApiService {
             @Query("page") Integer page,
             @Query("limit") Integer limit
     );
+
     @FormUrlEncoded
     @POST("api/auth/register")
     Call<AuthResp> register(
-            @Field("name")     String name,
-            @Field("email")    String email,
+            @Field("name") String name,
+            @Field("email") String email,
             @Field("password") String password
     );
 
     @FormUrlEncoded
     @POST("api/auth/login")
     Call<AuthResp> login(
-            @Field("email")    String email,
+            @Field("email") String email,
             @Field("password") String password
     );
 
@@ -85,18 +88,18 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("api/user/update_profile.php")
     Call<MeResp> updateProfile(
-            @Field("name")       String name,
-            @Field("phone")      String phone,
-            @Field("email")      String email,
-            @Field("birthDate")  String birthDate,
-            @Field("gender")     String gender
+            @Field("name") String name,
+            @Field("phone") String phone,
+            @Field("email") String email,
+            @Field("birthDate") String birthDate,
+            @Field("gender") String gender
     );
 
     @FormUrlEncoded
     @POST("api/auth/change-password.php")
     Call<BaseResp> changePassword(
             @Field("current_password") String currentPassword,
-            @Field("new_password")     String newPassword,
+            @Field("new_password") String newPassword,
             @Field("confirm_password") String confirmPassword
     );
 
@@ -193,10 +196,10 @@ public interface ApiService {
 
     @GET("api/store/products.php")
     Call<List<Product>> getStoreProducts(
-        @Query("store_id") int storeId,
-        @Query("q") String q,
-        @Query("page") Integer page,
-        @Query("limit") Integer limit
+            @Query("store_id") int storeId,
+            @Query("q") String q,
+            @Query("page") Integer page,
+            @Query("limit") Integer limit
     );
 
     // Seller Voucher Management APIs
@@ -373,4 +376,42 @@ public interface ApiService {
             @Field("product_id") int productId,
             @Field("quantity") int quantity
     );
+
+    // ==== PRODUCT ====
+    @GET("api/product/list.php")
+    Call<ProductListResp> fetchProducts(
+            @Query("page") int page,
+            @Query("limit") int limit,
+            @Query("q") String q,
+            @Query("categoryId") Integer categoryId,
+            @Query("sort") String sort // newest|price_asc|price_desc|popular
+    );
+
+    @GET("api/product/detail.php")
+    Call<BaseResp<Product>> fetchProductDetail(@Query("id") int productId);
+
+
+    @GET("api/product/recommended")
+    Call<ProductListResp> getRecommended(
+        @Query("uid") int uid,
+        @Query("limit") int limit
+    );
+
+    // ==== CART ====
+    @FormUrlEncoded
+    @POST("api/product/add_to_cart.php")
+    Call<BaseResp<CartResp>> cartAddItem(
+            @Field("productId") int productId,
+            @Field("quantity") int quantity
+    );
+
+    @FormUrlEncoded
+    @POST("api/product/remove_from_cart.php")
+    Call<BaseResp<CartResp>> cartRemoveItem(
+            @Field("productId") int productId,
+            @Field("quantity") int quantity,   // có thể truyền 1
+            @Field("remove_all") int removeAll // 1 = xoá hẳn
+    );
+    @GET("api/cart/list.php")
+    Call<BaseResp<CartResp>> cartGetSummary();
 }

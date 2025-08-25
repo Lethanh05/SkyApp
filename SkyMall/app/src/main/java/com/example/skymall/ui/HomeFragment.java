@@ -1,13 +1,9 @@
 package com.example.skymall.ui;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -20,16 +16,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.example.skymall.R;
 import com.example.skymall.data.model.Category;
 import com.example.skymall.data.model.Product;
-import com.example.skymall.data.remote.ApiManager;
+import com.example.skymall.data.remote.ApiClient;
 import com.example.skymall.data.remote.ApiService;
 import com.example.skymall.data.remote.DTO.CategoryListResp;
 import com.example.skymall.data.remote.DTO.ProductListResp;
+import com.example.skymall.ui.seller.ProductAdapter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -38,287 +35,322 @@ import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
-    private RecyclerView rvCat, rvFlash, rvRecommended;
+    private RecyclerView rvCat, rvFlash, rvRec;
     private ViewPager2 vpBanner;
     private LinearLayout dots;
-    private EditText etSearch;
     private ApiService api;
-
-    private BannerAdapter bannerAdapter;
-    private CategoryAdapter categoryAdapter;
-    private FlashSaleAdapter flashSaleAdapter;
-    private ProductGridAdapter recommendedAdapter;
-
-    private final Handler autoScrollHandler = new Handler();
-    private Runnable autoScrollRunnable;
-    private int currentBannerPage = 0;
-
-    private final List<String> bannerImages = new ArrayList<>();
-    private final List<Product> flashSaleProducts = new ArrayList<>();
-    private final List<Product> recommendedProducts = new ArrayList<>();
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle s) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onViewCreated(@NonNull View v, @Nullable Bundle s) {
+        // init views
+        vpBanner = v.findViewById(R.id.vpBanner);
+        dots     = v.findViewById(R.id.dots);
+        rvCat    = v.findViewById(R.id.rvCategories);
+        rvFlash  = v.findViewById(R.id.rvFlash);
+        rvRec    = v.findViewById(R.id.rvRecommend);
 
-        initViews(view);
-        setupApi();
-        setupAdapters();
-        setupSearch();
-        setupBannerAutoScroll();
-        loadData();
-    }
+        View btnCart = v.findViewById(R.id.btnCart);
+        if (btnCart != null) {
+            btnCart.setOnClickListener(view -> {
+                android.widget.Toast.makeText(requireContext(), "Opening cart...", android.widget.Toast.LENGTH_SHORT).show();
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, new CartFragment())
+                        .addToBackStack(null)
+                        .commit();
+            });
+        }
 
-    private void initViews(View view) {
-        vpBanner = view.findViewById(R.id.vpBanner);
-        dots = view.findViewById(R.id.dots);
-        rvCat = view.findViewById(R.id.rvCategories);
-        rvFlash = view.findViewById(R.id.rvFlashSale);
-        rvRecommended = view.findViewById(R.id.rvRecommended);
-        etSearch = view.findViewById(R.id.etSearch);
-    }
-
-    private void setupApi() {
-        // Sử dụng ApiManager thay vì tạo ApiService trực tiếp
-        api = ApiManager.getInstance(getContext()).getApiService();
-    }
-
-    private void setupAdapters() {
-        // Banner adapter
-        setupBannerImages();
-        bannerAdapter = new BannerAdapter(bannerImages);
-        vpBanner.setAdapter(bannerAdapter);
-        setupBannerDots();
-
-        // Category adapter
-        categoryAdapter = new CategoryAdapter(new ArrayList<>(), this::onCategoryClick);
+        // adapters + layout
         rvCat.setLayoutManager(new GridLayoutManager(getContext(), 4));
-        rvCat.setAdapter(categoryAdapter);
+        rvFlash.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+        rvRec.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
-        // Flash sale adapter (horizontal scroll with animation)
-        flashSaleAdapter = new FlashSaleAdapter(flashSaleProducts, this::onProductClick);
-        rvFlash.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        rvFlash.setAdapter(flashSaleAdapter);
+        // Retrofit
+        api = ApiClient.get("https://lequangthanh.click/").create(ApiService.class);
 
-        // Recommended products adapter
-        recommendedAdapter = new ProductGridAdapter(recommendedProducts, this::onProductClick);
-        rvRecommended.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        rvRecommended.setAdapter(recommendedAdapter);
-    }
-
-    private void setupBannerImages() {
-        // Random banner images
-        bannerImages.add("https://via.placeholder.com/400x200/FF6B6B/FFFFFF?text=Flash+Sale+50%25");
-        bannerImages.add("https://via.placeholder.com/400x200/4ECDC4/FFFFFF?text=New+Arrivals");
-        bannerImages.add("https://via.placeholder.com/400x200/45B7D1/FFFFFF?text=Free+Shipping");
-        bannerImages.add("https://via.placeholder.com/400x200/96CEB4/FFFFFF?text=Special+Offer");
-        bannerImages.add("https://via.placeholder.com/400x200/FFEAA7/FFFFFF?text=Weekend+Deal");
-    }
-
-    private void setupBannerDots() {
-        dots.removeAllViews();
-        for (int i = 0; i < bannerImages.size(); i++) {
-            ImageView dot = new ImageView(getContext());
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(24, 24);
-            params.setMargins(8, 0, 8, 0);
-            dot.setLayoutParams(params);
-            dot.setImageResource(i == 0 ? R.drawable.dot_active : R.drawable.dot_inactive);
-            dots.addView(dot);
-        }
-
+        // Banner (tạm hardcode; nếu có API banner thì thay ở đây)
+        List<String> banners = new ArrayList<>();
+        banners.add("https://quynhongrouptour.com.vn/wp-content/uploads/2024/12/z6114876825527_7aed9efdfe2e4716e49aaaa5c90cd8c2.jpg");
+        banners.add("https://homepage.momocdn.net/blogscontents/momo-upload-api-220606103940-637901087803924361.jpg");
+        banners.add("https://fagoagency.vn/uploads/pictures/60c6c4a18837135b3b974d07/content_shopee-flash-sale-thu-4.jpg");
+        vpBanner.setAdapter(new BannerAdapter(banners));
+        setupDots(banners.size());
         vpBanner.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                currentBannerPage = position;
-                updateBannerDots(position);
-            }
+            @Override public void onPageSelected(int position) { highlightDot(position); }
         });
-    }
+        fetchRecommended();
 
-    private void updateBannerDots(int position) {
-        for (int i = 0; i < dots.getChildCount(); i++) {
-            ImageView dot = (ImageView) dots.getChildAt(i);
-            dot.setImageResource(i == position ? R.drawable.dot_active : R.drawable.dot_inactive);
-        }
-    }
-
-    private void setupBannerAutoScroll() {
-        autoScrollRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (bannerImages.size() > 1) {
-                    currentBannerPage = (currentBannerPage + 1) % bannerImages.size();
-                    vpBanner.setCurrentItem(currentBannerPage, true);
-                    autoScrollHandler.postDelayed(this, 3000); // Auto scroll every 3 seconds
-                }
-            }
-        };
-        autoScrollHandler.postDelayed(autoScrollRunnable, 3000);
-    }
-
-    private void setupSearch() {
-        etSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String query = s.toString().trim();
-                if (query.length() > 2) {
-                    searchProducts(query);
-                } else if (query.isEmpty()) {
-                    // Reset to recommended products
-                    loadRecommendedProducts();
-                }
-            }
-        });
-    }
-
-    private void loadData() {
+        // Gọi API thực
         loadCategories();
-        loadFlashSaleProducts();
-        loadRecommendedProducts();
+        loadFlashSale();   // <-- dùng ảnh URL tạm (không cần API)
+        loadRecommend();
     }
+    private void fetchRecommended() {
+        int uid = 3; // TODO: lấy từ SharedPref nếu có login
+        ApiClient.create(getContext()).getRecommended(uid, 10)
+                .enqueue(new Callback<ProductListResp>() {
+                    @Override
+                    public void onResponse(Call<ProductListResp> call, Response<ProductListResp> res) {
+                        if (!isAdded()) return;
+                        if (res.isSuccessful() && res.body() != null && res.body().success) {
+                            List<Product> data = res.body().data != null ? res.body().data : new ArrayList<>();
 
-    private void loadCategories() {
-        if (api == null) {
-            return;
-        }
+                            // Chuẩn hoá URL ảnh nếu backend trả path tương đối
+                            for (Product p : data) {
+                                if (p.image == null || p.image.isEmpty()) {
+                                    if (p.img != null && !p.img.startsWith("http")) {
+                                        p.image = "https://lequangthanh.click/" +
+                                                (p.img.startsWith("/") ? p.img.substring(1) : p.img);
+                                    } else {
+                                        p.image = p.img;
+                                    }
+                                }
+                            }
 
-        // Sử dụng storeCategories thay vì getCategories (không tồn tại)
-        api.storeCategories().enqueue(new Callback<CategoryListResp>() {
-            @Override
-            public void onResponse(@NonNull Call<CategoryListResp> call, @NonNull Response<CategoryListResp> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().data != null) {
-                    categoryAdapter.updateCategories(response.body().data);
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<CategoryListResp> call, @NonNull Throwable t) {
-                // Handle error silently or show a subtle error message
-            }
-        });
-    }
-
-    private void loadFlashSaleProducts() {
-        if (api == null) {
-            // Create mock flash sale products
-            flashSaleProducts.clear();
-            flashSaleProducts.add(new Product(1, "iPhone 15 Pro Max", "Điện thoại cao cấp", 29990000, "https://via.placeholder.com/300x300", 50, 1));
-            flashSaleProducts.add(new Product(2, "Samsung Galaxy S24", "Điện thoại Samsung", 24990000, "https://via.placeholder.com/300x300", 30, 1));
-            flashSaleProducts.add(new Product(3, "MacBook Air M2", "Laptop Apple", 32990000, "https://via.placeholder.com/300x300", 20, 1));
-            flashSaleProducts.add(new Product(4, "iPad Pro 12.9", "Máy tính bảng", 27990000, "https://via.placeholder.com/300x300", 25, 1));
-            flashSaleProducts.add(new Product(5, "AirPods Pro 2", "Tai nghe không dây", 6990000, "https://via.placeholder.com/300x300", 100, 1));
-
-            // Add random flash sale discount (10-50%)
-            for (Product product : flashSaleProducts) {
-                product.discountPercentage = 10 + (int)(Math.random() * 40);
-            }
-
-            flashSaleAdapter.notifyItemRangeInserted(0, flashSaleProducts.size());
-            return;
-        }
-
-        // Sử dụng getFlashSale thay vì storeProducts
-        api.getFlashSale().enqueue(new Callback<List<Product>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<Product>> call, @NonNull Response<List<Product>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    flashSaleProducts.clear();
-                    flashSaleProducts.addAll(response.body());
-
-                    // Add flash sale discount for products that don't have one
-                    for (Product product : flashSaleProducts) {
-                        if (product.discountPercentage == 0) {
-                            product.discountPercentage = 10 + (int)(Math.random() * 40);
+                            rvRec.setLayoutManager(
+                                    new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
+                            );
+                            rvRec.setAdapter(new com.example.skymall.ui.home.RecommendAdapter(
+                                    requireContext(),
+                                    data,
+                                    new com.example.skymall.ui.home.RecommendAdapter.Listener() {
+                                        @Override public void onClick(Product p) {
+                                            // TODO: mở chi tiết
+                                            // startActivity(new Intent(getContext(), ProductDetailActivity.class).putExtra("id", p.id));
+                                        }
+                                        @Override public void onAddToCart(Product p) {
+                                            addToCart(p.id, 1); // gọi API thêm giỏ
+                                        }
+                                    }
+                            ));
                         }
                     }
-                    flashSaleAdapter.notifyDataSetChanged();
+                    @Override
+                    public void onFailure(Call<ProductListResp> call, Throwable t) {
+                        if (!isAdded()) return;
+                        Toast.makeText(getContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+    private void loadCategories() {
+        api.storeCategories().enqueue(new Callback<CategoryListResp>() {
+            @Override public void onResponse(Call<CategoryListResp> call, Response<CategoryListResp> res) {
+                if (!isAdded()) return;
+                if (res.isSuccessful() && res.body()!=null && res.body().data != null) {
+                    rvCat.setAdapter(new CategoryAdapter(res.body().data));
+                } else {
+                    // có thể set adapter rỗng để tránh crash
+                    rvCat.setAdapter(new CategoryAdapter(new ArrayList<>()));
                 }
             }
-
-            @Override
-            public void onFailure(@NonNull Call<List<Product>> call, @NonNull Throwable t) {
-                // Handle error - có thể log hoặc hiển thị thông báo lỗi
+            @Override public void onFailure(Call<CategoryListResp> call, Throwable t) {
+                if (!isAdded()) return;
+                rvCat.setAdapter(new CategoryAdapter(new ArrayList<>()));
             }
         });
     }
 
-    private void loadRecommendedProducts() {
-        if (api == null) {
-            return;
-        }
+    /**
+     * FLASH SALE: tạm thời hiển thị danh sách ảnh URL chạy ngang.
+     * Khi bạn có API thật (getFlashSale()), chỉ cần set adapter ProductHAdapter như cũ.
+     */
+    private void loadFlashSale() {
+        List<String> flashImageUrls = new ArrayList<>();
+        // Ảnh ngẫu nhiên ổn định từ picsum/unsplash
+        flashImageUrls.add("https://picsum.photos/seed/flash1/600/400");
+        flashImageUrls.add("https://picsum.photos/seed/flash2/600/400");
+        flashImageUrls.add("https://images.unsplash.com/photo-1513708925375-45c0d2e1d5a5?q=80&w=800&auto=format");
+        flashImageUrls.add("https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=800&auto=format");
+        flashImageUrls.add("https://picsum.photos/seed/flash5/600/400");
 
-        // Sử dụng storeProducts thay vì getAllProducts
+        rvFlash.setAdapter(new FlashImageAdapter(flashImageUrls));
+    }
+
+
+    // --- Nếu mai mốt có API thật, dùng lại đoạn cũ:
+        // api.getFlashSale().enqueue(new Callback<List<Product>>() {
+        //     @Override public void onResponse(Call<List<Product>> call, Response<List<Product>> res) {
+        //         if (!isAdded()) return;
+        //         if (res.isSuccessful() && res.body()!=null) {
+        //             rvFlash.setAdapter(new ProductHAdapter(res.body()));
+        //         }
+        //     }
+        //     @Override public void onFailure(Call<List<Product>> call, Throwable t) { /* TODO */ }
+        // });
+
+
+    // Helper: nếu backend trả đường dẫn ảnh tương đối, ghép thành URL tuyệt đối
+
+
+    private String absoluteUrl(String path) {
+        if (path == null || path.isEmpty()) return null;
+        if (path.startsWith("http")) return path;
+        return "https://lequangthanh.click/" + (path.startsWith("/") ? path.substring(1) : path);
+    }
+
+    private void loadRecommend() {
         api.storeProducts(null, 1, 20).enqueue(new Callback<ProductListResp>() {
-            @Override
-            public void onResponse(@NonNull Call<ProductListResp> call, @NonNull Response<ProductListResp> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().data != null) {
-                    List<Product> allProducts = new ArrayList<>(response.body().data);
+            @Override public void onResponse(Call<ProductListResp> call, Response<ProductListResp> rsp) {
+                if (!isAdded()) return;
 
-                    // Sort by popularity (random for now, can be based on sales data)
-                    Collections.shuffle(allProducts);
-
-                    recommendedProducts.clear();
-                    recommendedProducts.addAll(allProducts);
-                    recommendedAdapter.notifyDataSetChanged();
+                if (rsp.code() == 401) { // vẫn quên token → nhắc
+                    Toast.makeText(getContext(),"401: thiếu token — kiểm tra đăng nhập", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<ProductListResp> call, @NonNull Throwable t) {
-                // Handle error
+                List<Product> list = new ArrayList<>();
+                if (rsp.isSuccessful() && rsp.body()!=null && rsp.body().success && rsp.body().data != null) {
+                    for (Product p : rsp.body().data) {
+                        p.image = (p.img != null && !p.img.trim().isEmpty() && !"null".equalsIgnoreCase(p.img))
+                                ? absoluteUrl(p.img) : null;
+                        list.add(p);
+                    }
+                }
+
+                rvRec.setAdapter(new ProductGridAdapter(list) {
+                    @Override public void onBindViewHolder(@NonNull ProductGVH h, int i) {
+                        Product p = data.get(i);
+                        h.title.setText(p.name != null ? p.name : "Sản phẩm");
+                        h.price.setText("₫" + String.format("%,.0f", p.price));
+                        Glide.with(h.img.getContext())
+                                .load(p.image)
+                                .placeholder(R.drawable.ic_image_placeholder)
+                                .error(R.drawable.ic_image_placeholder)
+                                .into(h.img);
+                    }
+                });
+            }
+            @Override public void onFailure(Call<ProductListResp> call, Throwable t) {
+                if (!isAdded()) return;
+                rvRec.setAdapter(new ProductGridAdapter(new ArrayList<>()));
             }
         });
     }
 
-    private void searchProducts(String query) {
-        // TODO: Implement search API call
-        // For now, filter from existing products
-        List<Product> filteredProducts = new ArrayList<>();
-        for (Product product : recommendedProducts) {
-            if (product.name.toLowerCase().contains(query.toLowerCase())) {
-                filteredProducts.add(product);
-            }
+
+
+
+    // ---------- Simple Adapters ----------
+    static class BannerAdapter extends RecyclerView.Adapter<BannerVH> {
+        List<String> data; BannerAdapter(List<String> d){ data=d; }
+        @NonNull @Override public BannerVH onCreateViewHolder(@NonNull ViewGroup p, int v) {
+            View vItem = LayoutInflater.from(p.getContext()).inflate(R.layout.item_banner, p, false);
+            return new BannerVH(vItem);
         }
-        recommendedAdapter.updateProducts(filteredProducts);
+        @Override public void onBindViewHolder(@NonNull BannerVH h, int i) {
+            Glide.with(h.img.getContext()).load(data.get(i)).into(h.img);
+        }
+        @Override public int getItemCount(){ return data.size(); }
+    }
+    static class BannerVH extends RecyclerView.ViewHolder {
+        ImageView img; BannerVH(@NonNull View v){ super(v); img=v.findViewById(R.id.ivBanner); }
     }
 
-    private void onCategoryClick(Category category) {
-        // Navigate to store with category filter
-        // Intent intent = new Intent(getContext(), StoreActivity.class);
-        // intent.putExtra("category_id", category.id);
-        // startActivity(intent);
-
-        // Temporary: Show toast until StoreActivity is created
-        Toast.makeText(getContext(), "Chọn danh mục: " + category.name, Toast.LENGTH_SHORT).show();
+    static class CategoryAdapter extends RecyclerView.Adapter<CatVH>{
+        List<Category> data; CategoryAdapter(List<Category> d){ data=d; }
+        @NonNull @Override public CatVH onCreateViewHolder(@NonNull ViewGroup p, int v) {
+            View view = LayoutInflater.from(p.getContext()).inflate(R.layout.item_category, p, false);
+            return new CatVH(view);
+        }
+        @Override public void onBindViewHolder(@NonNull CatVH h, int i) {
+            Category c = data.get(i);
+            h.tv.setText(c.name);
+            // Nếu có icon_url từ API:
+            // Glide.with(h.icon.getContext()).load(c.icon_url).into(h.icon);
+        }
+        @Override public int getItemCount(){ return data.size(); }
+    }
+    static class CatVH extends RecyclerView.ViewHolder{
+        ImageView icon; android.widget.TextView tv;
+        CatVH(@NonNull View v){ super(v); icon=v.findViewById(R.id.imgIcon); tv=v.findViewById(R.id.tvName); }
     }
 
-    private void onProductClick(Product product) {
-        // Navigate to product detail
-        // Intent intent = new Intent(getContext(), ProductDetailActivity.class);
-        // intent.putExtra("product_id", product.id);
-        // startActivity(intent);
+    // Adapter ảnh Flash tạm thời (chỉ hiển thị ảnh, không tên/giá)
+    static class FlashImageAdapter extends RecyclerView.Adapter<FlashImageAdapter.FlashVH> {
+        final List<String> urls;
+        FlashImageAdapter(List<String> urls){ this.urls = urls != null ? urls : new ArrayList<>(); }
 
-        // Temporary: Show toast until ProductDetailActivity is created
-        Toast.makeText(getContext(), "Chọn sản phẩm: " + product.name, Toast.LENGTH_SHORT).show();
-    }
+        @NonNull @Override public FlashVH onCreateViewHolder(@NonNull ViewGroup p, int v) {
+            View view = LayoutInflater.from(p.getContext()).inflate(R.layout.item_flash_image, p, false);
+            return new FlashVH(view);
+        }
+        @Override public void onBindViewHolder(@NonNull FlashVH h, int i) {
+            Glide.with(h.img.getContext()).load(urls.get(i)).into(h.img);
+        }
+        @Override public int getItemCount() { return urls.size(); }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (autoScrollHandler != null && autoScrollRunnable != null) {
-            autoScrollHandler.removeCallbacks(autoScrollRunnable);
+        static class FlashVH extends RecyclerView.ViewHolder {
+            ImageView img;
+            FlashVH(@NonNull View v){ super(v); img = v.findViewById(R.id.imgFlash); }
         }
     }
-}
+
+    static class ProductHAdapter extends RecyclerView.Adapter<ProductHVH>{
+        List<Product> data; ProductHAdapter(List<Product> d){ data=d; }
+        @NonNull @Override public ProductHVH onCreateViewHolder(@NonNull ViewGroup p, int v) {
+            View view = LayoutInflater.from(p.getContext()).inflate(R.layout.item_product_horizontal, p, false);
+            return new ProductHVH(view);
+        }
+        @Override public void onBindViewHolder(@NonNull ProductHVH h, int i) {
+            Product p = data.get(i);
+            h.title.setText(p.name);
+            h.price.setText("₫" + String.format("%,.0f", p.price));
+            Glide.with(h.img.getContext()).load(p.image).into(h.img);
+        }
+        @Override public int getItemCount(){ return data.size(); }
+    }
+    static class ProductHVH extends RecyclerView.ViewHolder{
+        ImageView img; android.widget.TextView title, price;
+        ProductHVH(@NonNull View v){ super(v); img=v.findViewById(R.id.img); title=v.findViewById(R.id.tvTitle); price=v.findViewById(R.id.tvPrice); }
+    }
+
+    static class ProductGridAdapter extends RecyclerView.Adapter<ProductGVH>{
+        List<Product> data; ProductGridAdapter(List<Product> d){ data=d; }
+        @NonNull @Override public ProductGVH onCreateViewHolder(@NonNull ViewGroup p, int v) {
+            View view = LayoutInflater.from(p.getContext()).inflate(R.layout.item_product_grid, p, false);
+            return new ProductGVH(view);
+        }
+        @Override public void onBindViewHolder(@NonNull ProductGVH h, int i) {
+            Product p = data.get(i);
+            h.title.setText(p.name);
+            h.price.setText("₫" + String.format("%,.0f", p.price));
+            Glide.with(h.img.getContext()).load(p.image).into(h.img);
+        }
+        @Override public int getItemCount(){ return data.size(); }
+    }
+    static class ProductGVH extends RecyclerView.ViewHolder{
+        ImageView img; android.widget.TextView title, price;
+        ProductGVH(@NonNull View v){ super(v); img=v.findViewById(R.id.img); title=v.findViewById(R.id.tvTitle); price=v.findViewById(R.id.tvPrice); }
+    }
+
+    // ---------- Dots for banner ----------
+    private void setupDots(int count) {
+        dots.removeAllViews();
+        int size = (int) (6 * getResources().getDisplayMetrics().density); // 6dp
+        int margin = (int) (4 * getResources().getDisplayMetrics().density);
+        for (int i = 0; i < count; i++) {
+            ImageView d = new ImageView(getContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            params.setMargins(margin, 0, margin, 0);
+            d.setLayoutParams(params);
+            d.setImageResource(R.drawable.dot_inactive);
+            dots.addView(d);
+        }
+        highlightDot(0);
+    }
+
+    private void highlightDot(int index) {
+        for (int i = 0; i < dots.getChildCount(); i++) {
+            ImageView d = (ImageView) dots.getChildAt(i);
+            d.setImageResource(i == index ? R.drawable.dot_active : R.drawable.dot_inactive);
+        }
+    }

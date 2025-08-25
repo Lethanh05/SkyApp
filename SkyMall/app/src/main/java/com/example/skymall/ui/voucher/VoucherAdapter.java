@@ -78,37 +78,109 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
 
         public void bind(Voucher voucher) {
             tvVoucherCode.setText(voucher.code);
-
-            // Format value based on type - sử dụng discountType và discountValue
-            String valueText;
             if ("percentage".equals(voucher.discountType)) {
-                valueText = "Giảm " + String.format("%.0f%%", voucher.discountValue);
+                tvVoucherValue.setText("Giảm " + (int)voucher.discountValue + "%");
             } else {
                 NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-                valueText = "Giảm " + formatter.format(voucher.discountValue);
+                tvVoucherValue.setText("Giảm " + formatter.format(voucher.discountValue));
             }
-            tvVoucherValue.setText(valueText);
-
-            // Sử dụng minOrderAmount thay vì minOrderValue
             NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
             String minOrderText = "Đơn tối thiểu " + formatter.format(voucher.minOrderAmount);
             tvMinOrder.setText(minOrderText);
 
-            // Sử dụng expiryDate thay vì endDate
-            if (voucher.expiryDate != null && !voucher.expiryDate.isEmpty()) {
+            if (voucher.expiryDate != null) {
                 tvEndDate.setText("HSD: " + voucher.expiryDate);
                 tvEndDate.setVisibility(View.VISIBLE);
             } else {
                 tvEndDate.setVisibility(View.GONE);
             }
 
-            // Hiển thị thông tin sử dụng - sử dụng các field có sẵn
+            // Hiển thị thông tin sử dụng
             StringBuilder usageInfo = new StringBuilder();
-            if (voucher.usageLimit > 0) { // usageLimit là int, không phải Integer
+            if (voucher.usageLimit > 0) {
                 int remaining = voucher.usageLimit - voucher.usedCount;
-                usageInfo.append("Còn ").append(remaining).append("/").append(voucher.usageLimit);
-            } else {
-                usageInfo.append("Không giới hạn");
+                usageInfo.append("Còn ").append(remaining)
+                        .append("/").append(voucher.usageLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
+            }
+            if (voucher.perUserLimit > 0) {
+                if (usageInfo.length() > 0) usageInfo.append(" • ");
+                usageInfo.append("Bạn đã dùng ").append(voucher.userUsed)
+                        .append("/").append(voucher.perUserLimit);
             }
 
             if (usageInfo.length() > 0) {

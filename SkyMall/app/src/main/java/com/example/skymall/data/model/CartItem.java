@@ -8,6 +8,7 @@ public class CartItem implements Serializable {
     public double price;
     public String image;
     public int quantity;
+    public String img;
     public boolean selected;
 
     public CartItem() {}

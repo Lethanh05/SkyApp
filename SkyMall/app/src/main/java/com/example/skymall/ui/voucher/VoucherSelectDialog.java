@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.skymall.R;
 import com.example.skymall.data.model.Voucher;
-import com.example.skymall.data.remote.ApiManager;
+import com.example.skymall.data.remote.ApiClient;
 import com.example.skymall.data.remote.ApiService;
 import com.example.skymall.data.remote.DTO.VoucherListResp;
 
@@ -30,8 +30,8 @@ public class VoucherSelectDialog extends Dialog {
     private TextView tvNoVouchers;
     private VoucherSelectAdapter adapter;
     private ApiService api;
-    private final Voucher selectedVoucher;
-    private final OnVoucherSelectedListener listener;
+    private Voucher selectedVoucher;
+    private OnVoucherSelectedListener listener;
 
     public interface OnVoucherSelectedListener {
         void onVoucherSelected(Voucher voucher);
@@ -68,8 +68,7 @@ public class VoucherSelectDialog extends Dialog {
     }
 
     private void setupApi() {
-        // Sử dụng ApiManager thống nhất
-        api = ApiManager.getInstance(getContext()).getApiService();
+        api = ApiClient.create(getContext());
     }
 
     private void setupRecyclerView() {

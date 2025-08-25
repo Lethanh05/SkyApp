@@ -45,9 +45,11 @@
         <activity android:name=".auth.RegisterActivity" />
 
         <activity
-            android:name=".ui.payment.PaymentActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName=".MainActivity" />
+            android:name=".ui.checkout.CheckoutActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+
 
         <activity
             android:name=".ui.notification.NotificationActivity"

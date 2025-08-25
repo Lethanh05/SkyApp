@@ -83,53 +83,36 @@ public class VoucherManagementAdapter extends RecyclerView.Adapter<VoucherManage
             tvCode.setText(voucher.code);
             tvDescription.setText(voucher.description != null ? voucher.description : "Không có mô tả");
 
-            // Format value based on type - sử dụng discountType và discountValue
-            if ("percentage".equals(voucher.discountType)) {
-                tvValue.setText(String.format("Giảm %.0f%%", voucher.discountValue));
-                chipType.setText("Giảm %");
-                chipType.setChipBackgroundColorResource(android.R.color.holo_blue_light);
+            // Format value based on discountType
+            if (voucher.discountType != null && voucher.discountType.equals("percentage")) {
+                tvValue.setText((int)voucher.discountValue + "%");
             } else {
-                tvValue.setText("Giảm " + currencyFormat.format(voucher.discountValue));
-                chipType.setText("Giảm cố định");
-                chipType.setChipBackgroundColorResource(android.R.color.holo_green_light);
+                tvValue.setText(currencyFormat.format(voucher.discountValue));
             }
 
-            // Sử dụng minOrderAmount thay vì minOrderValue
             tvMinOrder.setText("Đơn tối thiểu: " + currencyFormat.format(voucher.minOrderAmount));
 
-            // Usage info - sử dụng các field có sẵn
+            // Usage info
             StringBuilder usageInfo = new StringBuilder();
-            usageInfo.append("Đã dùng: ").append(voucher.usedCount);
-            if (voucher.usageLimit > 0) { // usageLimit là int, không phải Integer
+            usageInfo.append("Đã dùng: " + voucher.usedCount);
+            if (voucher.usageLimit > 0) {
                 usageInfo.append("/").append(voucher.usageLimit);
-            } else {
-                usageInfo.append(" (Không giới hạn)");
+                chipStatus.setChipBackgroundColorResource(R.color.chip_active_bg);
             }
             tvUsage.setText(usageInfo.toString());
 
-            // Validity dates - chỉ hiển thị expiryDate
-            if (voucher.expiryDate != null && !voucher.expiryDate.isEmpty()) {
-                tvDates.setText("Hết hạn: " + voucher.expiryDate);
-            } else {
-                tvDates.setText("Không thời hạn");
-            }
+            // Dates
+            tvDates.setText("HSD: " + voucher.expiryDate);
 
-            // Status chip - isActive là boolean, không phải Boolean
+            // Status
             if (voucher.isActive) {
                 chipStatus.setText("Hoạt động");
-                chipStatus.setChipBackgroundColorResource(android.R.color.holo_green_light);
-                chipStatus.setTextColor(itemView.getContext().getColor(android.R.color.white));
+                chipStatus.setChipBackgroundColorResource(R.color.chip_active_bg);
+                chipStatus.setTextColor(itemView.getContext().getColor(R.color.chip_active_text));
             } else {
-                chipStatus.setText("Tạm dừng");
-                chipStatus.setChipBackgroundColorResource(android.R.color.holo_red_light);
-                chipStatus.setTextColor(itemView.getContext().getColor(android.R.color.white));
-            }
-
-            // Check if expired - sử dụng method isValid() có sẵn
-            if (!voucher.isValid()) {
-                chipStatus.setText("Hết hạn/Hết lượt");
-                chipStatus.setChipBackgroundColorResource(android.R.color.darker_gray);
-                chipStatus.setTextColor(itemView.getContext().getColor(android.R.color.white));
+                chipStatus.setText("Không hoạt động");
+                chipStatus.setChipBackgroundColorResource(R.color.chip_inactive_bg);
+                chipStatus.setTextColor(itemView.getContext().getColor(R.color.chip_inactive_text));
             }
 
             // Button listeners
@@ -149,19 +132,6 @@ public class VoucherManagementAdapter extends RecyclerView.Adapter<VoucherManage
                 if (listener != null) {
                     listener.onDelete(voucher);
                 }
-            });
-
-            cardView.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onViewDetails(voucher);
-                }
-            });
-
-            cardView.setOnLongClickListener(v -> {
-                if (listener != null) {
-                    listener.onToggleStatus(voucher);
-                }
-                return true;
             });
         }
     }

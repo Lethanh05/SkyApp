@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.skymall.R;
+import com.example.skymall.data.model.Product;
 
 import java.util.List;
 
@@ -38,15 +39,26 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public void onBindViewHolder(ProductViewHolder holder, int position) {
         Product p = productList.get(position);
-        holder.name.setText(p.getName());
-        holder.price.setText("Giá: " + String.format("%,.0f", p.getPrice()) + "đ");
-        holder.description.setText(p.getDescription());
-
-        if (p.getImage() != null && !p.getImage().isEmpty()) {
-            // Load image from URL using Picasso
-            com.squareup.picasso.Picasso.get().load(p.getImage()).into(holder.image);
+        // Ensure the image URL is valid
+        if (p.img == null || p.img.trim().isEmpty() || "null".equalsIgnoreCase(p.img.trim())) {
+            p.image = null; // Set to null if invalid
         } else {
-            holder.image.setImageDrawable(null);
+            p.image = Product.normalizeImage(p.img); // Normalize valid image URL
+        }
+
+        holder.name.setText(p.name);
+        holder.price.setText("Giá: " + String.format("%,.0f", p.price) + "đ");
+        holder.description.setText(p.description);
+
+        // Load image using Picasso
+        if (p.image != null) {
+            com.squareup.picasso.Picasso.get()
+                .load(p.image)
+                .placeholder(R.drawable.ic_product_placeholder)
+                .error(R.drawable.ic_product_placeholder)
+                .into(holder.image);
+        } else {
+            holder.image.setImageResource(R.drawable.ic_product_placeholder);
         }
 
         holder.btnDelete.setOnClickListener(v -> {
@@ -56,8 +68,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             if (listener != null) listener.onEdit(p, position);
         });
         holder.description.setText(
-                (p.description == null ? "" : p.description) +
-                        (p.categoryName != null ? "\nChuyên mục: " + p.categoryName : "")
+                (p.description == null ? "" : p.description)
         );
 
     }

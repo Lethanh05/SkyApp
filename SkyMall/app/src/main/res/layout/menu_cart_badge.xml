@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content" android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/icCart"
+        android:layout_width="24dp" android:layout_height="24dp"
+        android:padding="2dp"
+        android:src="@drawable/ic_shopping_cart"/>
+
+    <TextView
+        android:id="@+id/tvBadge"
+        android:layout_width="18dp" android:layout_height="18dp"
+        android:layout_gravity="end|top"
+        android:background="@drawable/chip_bg_warning"
+        android:textColor="@android:color/white"
+        android:textSize="11sp"
+        android:gravity="center"
+        android:visibility="gone"/>
+</FrameLayout>

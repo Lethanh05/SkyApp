@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.skymall.R;
-import com.example.skymall.data.remote.ApiManager;
 import com.example.skymall.data.remote.ApiService;
 import com.example.skymall.data.remote.DTO.OrderDto;
 import com.example.skymall.data.remote.DTO.OrderListResp;
@@ -52,11 +51,6 @@ public class OrderListActivity extends AppCompatActivity {
         setupRecyclerView();
         loadOrders();
     }
-
-    private void setupApi() {
-        api = ApiManager.getInstance(this).getApiService();
-    }
-
     private void initViews() {
         tabLayout = findViewById(R.id.tabLayout);
         rvOrders = findViewById(R.id.rvOrders);
@@ -138,5 +132,9 @@ public class OrderListActivity extends AppCompatActivity {
 
     private void onOrderClick(OrderDto order) {
         Toast.makeText(this, "Chi tiết đơn hàng #" + order.id, Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupApi() {
+        api = com.example.skymall.data.remote.ApiClient.get("https://lequangthanh.click/").create(ApiService.class);
     }
 }

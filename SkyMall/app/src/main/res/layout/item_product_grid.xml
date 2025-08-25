@@ -52,6 +52,16 @@
                 android:textSize="12sp"
                 android:layout_marginTop="2dp" />
 
+            <Button
+                android:id="@+id/btnAddToCart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Thêm vào giỏ"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/skymall_primary"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
         </LinearLayout>
 
     </LinearLayout>

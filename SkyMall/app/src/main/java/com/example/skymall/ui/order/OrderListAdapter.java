@@ -49,12 +49,12 @@ public class OrderListAdapter extends RecyclerView.Adapter<OrderListAdapter.Orde
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         OrderDto order = orders.get(position);
 
-        holder.tvOrderId.setText(String.format("Đơn hàng #%d", order.id));
-        holder.tvOrderDate.setText(formatDate(order.created_at)); // Sử dụng created_at thay vì createdAt
-        holder.tvTotalAmount.setText(MoneyFmt.format(order.grand_total)); // Sử dụng grand_total thay vì totalAmount
+        holder.tvOrderId.setText("Đơn hàng #" + order.id);
+        holder.tvOrderDate.setText(formatDate(order.created_at));
+        holder.tvTotalAmount.setText(MoneyFmt.format(order.grand_total));
 
-        // OrderDto không có field items, sử dụng placeholder hoặc loại bỏ
-        holder.tvItemCount.setText("Xem chi tiết"); // Thay vì hiển thị số items
+        // OrderDto does not have items field, so we cannot show item count
+        holder.tvItemCount.setText(""); // Or show a placeholder, e.g. "- sản phẩm"
 
         // Set status text and color
         setOrderStatus(holder, order.status);

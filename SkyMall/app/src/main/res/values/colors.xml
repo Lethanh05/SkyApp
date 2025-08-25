@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Basic Colors -->
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-
-    <!-- SkyMall Primary Colors -->
-    <color name="skymall_primary">#1976D2</color>
-    <color name="skymall_primary_light">#42A5F5</color>
-    <color name="skymall_primary_dark">#0D47A1</color>
-
-    <!-- SkyMall Surface Colors -->
-    <color name="skymall_surface">#FFFFFF</color>
+    <color name="skymall_primary">#64B5F6</color>
+    <color name="skymall_primary_dark">#1E88E5</color>
     <color name="skymall_on_primary">#FFFFFF</color>
-    <color name="skymall_on_surface">#000000</color>
-
-    <!-- Primary Colors (keeping for compatibility) -->
-    <color name="primary">@color/skymall_primary</color>
-    <color name="primary_dark">@color/skymall_primary_dark</color>
-    <color name="primary_light">@color/skymall_primary_light</color>
+    <color name="skymall_surface">#F6FAFF</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
 
     <!-- Accent Colors -->
     <color name="accent">#FF5722</color>
@@ -43,11 +31,13 @@
     <color name="price_color">#F44336</color>
     <color name="discount_color">#FF5722</color>
     <color name="flash_sale_bg">#FFF3E0</color>
-    <color name="chip_active_text">#FFFFFF</color>
     <color name="rank_silver">#C0C0C0</color>
-    <color name="rank_gold">#FFEB3B</color>
-    <color name="rank_bronze">#402B2B</color>
-
+    <color name="rank_gold">#C0C0C0</color>
+    <color name="rank_bronze">#C0C0C0</color>
+    <color name="chip_active_bg">#4CAF50</color>
+    <color name="chip_inactive_bg">#BDBDBD</color>
+    <color name="chip_active_text">#FFFFFF</color>
+    <color name="chip_inactive_text">#757575</color>
     <!-- Transparent -->
     <color name="transparent">#00000000</color>
 

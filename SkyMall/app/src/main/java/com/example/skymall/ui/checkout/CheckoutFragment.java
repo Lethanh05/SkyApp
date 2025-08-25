@@ -123,7 +123,7 @@ public class CheckoutFragment extends Fragment {
             shippingFee = 0.0;
         }
 
-        orderRepository.createOrder(cartId, addressId, voucherCode, shippingFee,
+        orderRepository.createOrder(cartId, addressId, voucherCode, (int) shippingFee,
             new CustomerOrderRepository.CreateOrderCallback() {
                 @Override
                 public void onSuccess(int orderId) {

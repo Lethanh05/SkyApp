@@ -3,6 +3,7 @@ package com.example.skymall.ui.voucher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -52,7 +53,6 @@ public class VoucherSelectAdapter extends RecyclerView.Adapter<VoucherSelectAdap
     public void onBindViewHolder(@NonNull VoucherViewHolder holder, int position) {
         Voucher voucher = vouchers.get(position);
 
-        holder.tvTitle.setText(voucher.title);
         holder.tvDescription.setText(voucher.description);
 
         // Format discount text
@@ -87,6 +87,23 @@ public class VoucherSelectAdapter extends RecyclerView.Adapter<VoucherSelectAdap
             holder.tvMinOrder.setVisibility(View.GONE);
         }
 
+        // Hiển thị ảnh voucher nếu có
+        // Giả sử bạn đã thêm ImageView vào layout item_voucher_select.xml với id là imgVoucher
+        if (holder.imgVoucher != null) {
+            // Nếu Voucher có trường image, lấy link ảnh
+            String imgUrl = voucher.image;
+            if (imgUrl != null && !imgUrl.isEmpty() && !"null".equals(imgUrl)) {
+                if (!imgUrl.startsWith("http")) {
+                    imgUrl = "https://lequangthanh.click" + imgUrl;
+                }
+                // Load ảnh bằng Picasso
+                com.squareup.picasso.Picasso.get().load(imgUrl).into(holder.imgVoucher);
+            } else {
+                // Sử dụng hình mặc định có sẵn trong Android: ic_launcher
+                holder.imgVoucher.setImageResource(R.drawable.ic_product_placeholder); // hình mặc định
+            }
+        }
+
         // Set selection state
         boolean isSelected = selectedVoucher != null && selectedVoucher.id == voucher.id;
         holder.radioButton.setChecked(isSelected);
@@ -108,6 +125,7 @@ public class VoucherSelectAdapter extends RecyclerView.Adapter<VoucherSelectAdap
     static class VoucherViewHolder extends RecyclerView.ViewHolder {
         RadioButton radioButton;
         TextView tvTitle, tvDescription, tvDiscount, tvMaxDiscount, tvExpiry, tvMinOrder;
+        ImageView imgVoucher;
 
         VoucherViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -118,6 +136,7 @@ public class VoucherSelectAdapter extends RecyclerView.Adapter<VoucherSelectAdap
             tvMaxDiscount = itemView.findViewById(R.id.tvMaxDiscount);
             tvExpiry = itemView.findViewById(R.id.tvExpiry);
             tvMinOrder = itemView.findViewById(R.id.tvMinOrder);
+            imgVoucher = itemView.findViewById(R.id.imgVoucher);
         }
     }
 }

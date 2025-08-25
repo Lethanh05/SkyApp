@@ -1,9 +1,17 @@
 package com.example.skymall.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Button;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -13,10 +21,13 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.skymall.R;
+import com.example.skymall.data.model.CartItem;           // <-- dùng model chuẩn (Serializable)
 import com.example.skymall.data.remote.DTO.CartListResp;
 import com.example.skymall.data.repository.CartRepository;
+import com.example.skymall.ui.checkout.CheckoutActivity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CartFragment extends Fragment {
 
@@ -28,24 +39,9 @@ public class CartFragment extends Fragment {
     private CartAdapter adapter;
     private CartRepository cartRepository;
 
-    // Updated CartItem to match API structure
-    public static class CartItem {
-        public int productId;
-        public String name;
-        public double price;
-        public String img;
-        public int quantity;
-        public boolean selected;
-
-        public CartItem(int productId, String name, double price, String img, int quantity) {
-            this.productId = productId;
-            this.name = name;
-            this.price = price;
-            this.img = img;
-            this.quantity = quantity;
-            this.selected = false; // Default not selected
-        }
-    }
+    // lưu cart_id và address_id (nếu có)
+    private Integer currentCartId = null;
+    private Integer defaultAddressId = null; // TODO: nếu có API địa chỉ mặc định thì set vào
 
     @Nullable
     @Override
@@ -55,114 +51,113 @@ public class CartFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle s) {
-        cbSelectAll = v.findViewById(R.id.cbSelectAll);
+        cbSelectAll     = v.findViewById(R.id.cbSelectAll);
         tvSelectedCount = v.findViewById(R.id.tvSelectedCount);
-        tvTotalPrice = v.findViewById(R.id.tvTotalPrice);
-        btnCheckout = v.findViewById(R.id.btnCheckout);
-        rvCart = v.findViewById(R.id.rvCart);
-        swipeRefresh = v.findViewById(R.id.swipeRefresh);
+        tvTotalPrice    = v.findViewById(R.id.tvTotalPrice);
+        btnCheckout     = v.findViewById(R.id.btnCheckout);
+        rvCart          = v.findViewById(R.id.rvCart);
+        swipeRefresh    = v.findViewById(R.id.swipeRefresh);
 
         cartRepository = new CartRepository(requireContext());
-        
+
         rvCart.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new CartAdapter(new ArrayList<>(), this::onCartChanged, this::onItemDelete, this::onItemQuantityChanged);
         rvCart.setAdapter(adapter);
 
-        cbSelectAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            adapter.setAllSelected(isChecked);
-        });
+        cbSelectAll.setOnCheckedChangeListener((buttonView, isChecked) -> adapter.setAllSelected(isChecked));
 
+        // MUA NGAY -> mở Checkout, truyền list CartItem (Serializable) + cart_id/address_id nếu có
         btnCheckout.setOnClickListener(view -> {
             List<CartItem> selected = adapter.getSelectedItems();
             if (selected.isEmpty()) {
                 Toast.makeText(getContext(), "Chưa chọn sản phẩm nào", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // TODO: Navigate to checkout with selected items
-            Toast.makeText(getContext(), "Đặt " + selected.size() + " sản phẩm", Toast.LENGTH_SHORT).show();
+            for (CartItem it : selected) if (it.quantity <= 0) it.quantity = 1;
+
+            Intent intent = new Intent(requireContext(), CheckoutActivity.class);
+            intent.putExtra(CheckoutActivity.EXTRA_CART_ITEMS, new ArrayList<>(selected));
+            if (currentCartId != null) intent.putExtra(CheckoutActivity.EXTRA_CART_ID, currentCartId);
+            if (defaultAddressId != null) intent.putExtra(CheckoutActivity.EXTRA_ADDRESS_ID, defaultAddressId);
+            startActivity(intent);
         });
 
         swipeRefresh.setOnRefreshListener(this::loadCart);
 
-        // Load cart data on start
         loadCart();
     }
 
     private void loadCart() {
+        swipeRefresh.setRefreshing(true);
         cartRepository.getCart(new CartRepository.CartListCallback() {
             @Override
             public void onSuccess(CartListResp response) {
                 swipeRefresh.setRefreshing(false);
-                if (getContext() == null) return;
-                
+                if (!isAdded()) return;
+
+                // lấy cart_id từ response (đặt đúng field theo DTO của bạn)
+                // Sử dụng đúng tên field: cart_id
+                try {
+                    if (response.cart_id != 0) currentCartId = response.cart_id;
+                } catch (Exception ignored) {}
+
                 List<CartItem> cartItems = new ArrayList<>();
                 if (response.items != null) {
                     for (CartListResp.CartItem apiItem : response.items) {
-                        cartItems.add(new CartItem(
-                            apiItem.productId,
-                            apiItem.name,
-                            apiItem.price,
-                            apiItem.img,
-                            apiItem.quantity
-                        ));
+                        CartItem i = new CartItem();
+                        i.productId = apiItem.productId;
+                        i.name      = apiItem.name;
+                        i.price     = apiItem.price;
+                        i.quantity  = apiItem.quantity;
+                        // nếu model có ảnh:
+                        try { i.img = apiItem.img; } catch (Exception ignored) {}
+                        cartItems.add(i);
                     }
                 }
-                
                 adapter.updateItems(cartItems);
                 recalcSummary();
+
+                // TODO: nếu có API địa chỉ mặc định -> gọi ở đây để set defaultAddressId
             }
 
             @Override
             public void onError(String error) {
                 swipeRefresh.setRefreshing(false);
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
-                }
+                if (!isAdded()) return;
+                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Khi có thay đổi (tick chọn, cộng trừ số lượng…)
     private void onCartChanged() {
         recalcSummary();
     }
 
     private void onItemDelete(CartItem item) {
         cartRepository.removeFromCart(item.productId, new CartRepository.CartActionCallback() {
-            @Override
-            public void onSuccess() {
-                if (getContext() != null) {
-                    adapter.remove(item);
-                    recalcSummary();
-                    Toast.makeText(getContext(), "Đã xóa " + item.name, Toast.LENGTH_SHORT).show();
-                }
+            @Override public void onSuccess() {
+                if (!isAdded()) return;
+                adapter.remove(item);
+                recalcSummary();
+                Toast.makeText(getContext(), "Đã xóa " + item.name, Toast.LENGTH_SHORT).show();
             }
-
-            @Override
-            public void onError(String error) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi khi xóa: " + error, Toast.LENGTH_SHORT).show();
-                }
+            @Override public void onError(String error) {
+                if (!isAdded()) return;
+                Toast.makeText(getContext(), "Lỗi khi xóa: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void onItemQuantityChanged(CartItem item) {
         cartRepository.updateCartItem(item.productId, item.quantity, new CartRepository.CartActionCallback() {
-            @Override
-            public void onSuccess() {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Đã cập nhật số lượng", Toast.LENGTH_SHORT).show();
-                }
+            @Override public void onSuccess() {
+                if (!isAdded()) return;
+                Toast.makeText(getContext(), "Đã cập nhật số lượng", Toast.LENGTH_SHORT).show();
             }
-
-            @Override
-            public void onError(String error) {
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi cập nhật: " + error, Toast.LENGTH_SHORT).show();
-                    // Reload cart to revert changes
-                    loadCart();
-                }
+            @Override public void onError(String error) {
+                if (!isAdded()) return;
+                Toast.makeText(getContext(), "Lỗi cập nhật: " + error, Toast.LENGTH_SHORT).show();
+                loadCart();
             }
         });
     }
@@ -177,20 +172,15 @@ public class CartFragment extends Fragment {
             }
         }
         tvSelectedCount.setText("(" + selectedCount + ")");
-        tvTotalPrice.setText("₫" + formatMoney(total));
+        tvTotalPrice.setText("₫" + String.format("%,.0f", total));
         cbSelectAll.setOnCheckedChangeListener(null);
         cbSelectAll.setChecked(selectedCount == adapter.getItemCount() && adapter.getItemCount() > 0);
         cbSelectAll.setOnCheckedChangeListener((b, c) -> adapter.setAllSelected(c));
         btnCheckout.setEnabled(selectedCount > 0);
     }
 
-    private String formatMoney(double v) {
-        return String.format("%,.0f", v);
-    }
-
-    // ---------- Adapter ----------
+    // ---------------- Adapter ----------------
     static class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
-
         interface Listener { void onChanged(); }
         interface DeleteListener { void onDelete(CartItem item); }
         interface QuantityListener { void onQuantityChanged(CartItem item); }
@@ -229,6 +219,12 @@ public class CartFragment extends Fragment {
             if (listener != null) listener.onChanged();
         }
 
+        private String getFullImageUrl(String imagePath) {
+            if (imagePath == null) return null;
+            if (imagePath.startsWith("http")) return imagePath;
+            return "https://lequangthanh.click/" + (imagePath.startsWith("/") ? imagePath.substring(1) : imagePath);
+        }
+
         @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int vType) {
             View v = LayoutInflater.from(p.getContext()).inflate(R.layout.item_cart_product, p, false);
             return new VH(v);
@@ -236,12 +232,21 @@ public class CartFragment extends Fragment {
 
         @Override public void onBindViewHolder(@NonNull VH h, int i) {
             CartItem it = items.get(i);
+
             h.cb.setOnCheckedChangeListener(null);
             h.cb.setChecked(it.selected);
+
             h.title.setText(it.name);
             h.price.setText("₫" + String.format("%,.0f", it.price));
             h.qty.setText(String.valueOf(it.quantity));
-            Glide.with(h.img.getContext()).load(it.img).into(h.img);
+
+            try {
+                Glide.with(h.img.getContext())
+                        .load(getFullImageUrl(it.img)) // nếu model không có img, xoá dòng này + field img khỏi model/layout
+                        .placeholder(R.drawable.ic_image_placeholder)
+                        .error(R.drawable.ic_image_placeholder)
+                        .into(h.img);
+            } catch (Exception ignored) {}
 
             h.cb.setOnCheckedChangeListener((b, c) -> {
                 it.selected = c;
@@ -264,25 +269,30 @@ public class CartFragment extends Fragment {
                 if (quantityListener != null) quantityListener.onQuantityChanged(it);
             });
 
-            h.btnDelete.setOnClickListener(v -> { if (deleteListener != null) deleteListener.onDelete(it); });
+            h.btnDelete.setOnClickListener(v -> {
+                if (deleteListener != null) deleteListener.onDelete(it);
+            });
         }
 
         @Override public int getItemCount(){ return items==null?0:items.size(); }
 
         static class VH extends RecyclerView.ViewHolder {
-            CheckBox cb; ImageView img; TextView title, price, qty;
+            CheckBox cb;
+            ImageView img;
+            TextView title, price, qty;
             ImageButton btnMinus, btnPlus;
             TextView btnDelete;
+
             VH(@NonNull View v){
                 super(v);
-                cb = v.findViewById(R.id.cbItem);
-                img = v.findViewById(R.id.imgProduct);
-                title = v.findViewById(R.id.tvTitle);
-                price = v.findViewById(R.id.tvPrice);
-                qty = v.findViewById(R.id.tvQty);
+                cb       = v.findViewById(R.id.cbItem);
+                img      = v.findViewById(R.id.imgProduct);
+                title    = v.findViewById(R.id.tvTitle);
+                price    = v.findViewById(R.id.tvPrice);
+                qty      = v.findViewById(R.id.tvQty);
                 btnMinus = v.findViewById(R.id.btnMinus);
-                btnPlus = v.findViewById(R.id.btnPlus);
-                btnDelete = v.findViewById(R.id.btnDelete);
+                btnPlus  = v.findViewById(R.id.btnPlus);
+                btnDelete= v.findViewById(R.id.btnDelete);
             }
         }
     }

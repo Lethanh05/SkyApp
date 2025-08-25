@@ -39,7 +39,7 @@ public class CustomerOrderRepository {
         void onError(String error);
     }
 
-    public void createOrder(int cartId, int addressId, String voucherCode, double shippingFee, CreateOrderCallback callback) {
+    public void createOrder(int cartId, int addressId, String voucherCode, int shippingFee, CreateOrderCallback callback) {
         Call<CreateOrderResp> call = apiService.createOrder(cartId, addressId, voucherCode, shippingFee);
         call.enqueue(new Callback<CreateOrderResp>() {
             @Override
